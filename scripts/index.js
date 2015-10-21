@@ -1,6 +1,5 @@
 
 var scale = window.devicePixelRatio
-
 var wWidth = window.innerWidth * scale
 var wHeight = window.innerHeight * scale
 var wArea = wWidth * wHeight
@@ -10,14 +9,15 @@ var nodes = new Array(Math.sqrt(wArea) / 10 | 0)
 var canvas = document.createElement('canvas')
 var ctx = canvas.getContext('2d')
 
-var $container = document.getElementById('container')
-
+if (scale !== 1) {
+  canvas.style.transform = 'scale(' + 1 / scale + ')'
+  canvas.style.transformOrigin = '0 0'
+}
 canvas.width = wWidth
 canvas.height = wHeight
 canvas.id = 'nodegarden'
-canvas.style.transform = 'scale(' + 1 / scale + ')'
 
-document.body.insertBefore(canvas, $container)
+document.body.insertBefore(canvas, document.body.firstChild)
 
 init()
 render()
