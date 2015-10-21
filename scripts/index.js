@@ -9,6 +9,8 @@ var nodes = new Array(Math.sqrt(wArea) / 10 | 0)
 var canvas = document.createElement('canvas')
 var ctx = canvas.getContext('2d')
 
+var $container = document.getElementById('container')
+
 if (scale !== 1) {
   canvas.style.transform = 'scale(' + 1 / scale + ')'
   canvas.style.transformOrigin = '0 0'
@@ -17,7 +19,7 @@ canvas.width = wWidth
 canvas.height = wHeight
 canvas.id = 'nodegarden'
 
-document.body.insertBefore(canvas, document.body.firstChild)
+$container.appendChild(canvas)
 
 init()
 render()
