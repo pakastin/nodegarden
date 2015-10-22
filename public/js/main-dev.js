@@ -64,8 +64,7 @@
     var i, j, nodeA, nodeB, len;
 
     // clear canvas
-    canvas.width = wWidth;
-    canvas.height = wHeight;
+    ctx.clearRect(0, 0, wWidth, wHeight);
 
     // update links
     for (i = 0, len = nodes.length - 1; i < len; i++) {
