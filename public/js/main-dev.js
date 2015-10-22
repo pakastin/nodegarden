@@ -53,8 +53,7 @@
         vx: Math.random() * 1 - 0.5,
         vy: Math.random() * 1 - 0.5,
         m: Math.random() * 1.5 + 1,
-        link: null,
-        pos: false
+        pos: Math.random() >= 0.5
       };
     }
   }
@@ -123,9 +122,16 @@
           force = 0.025;
         }
 
+        var charge = nodeA.pos === nodeB.pos ? -1 : 1;
+
         // draw gravity lines
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(63,63,63,' + force * 40 + ')';
+
+        if (charge === 1) {
+          ctx.strokeStyle = 'rgba(191,63,31,' + force * 40 + ')';
+        } else {
+          ctx.strokeStyle = 'rgba(31,63,191,' + force * 40 + ')';
+        }
         ctx.moveTo(nodeA.x, nodeA.y);
         ctx.lineTo(nodeB.x, nodeB.y);
         ctx.stroke();
@@ -134,19 +140,11 @@
         yForce = force * direction.y;
 
         // calculate new velocity after gravity
-        if (nodeA.pos !== nodeB.pos) {
-          nodeA.vx -= xForce;
-          nodeA.vy -= yForce;
+        nodeA.vx += charge * xForce * 0.75;
+        nodeA.vy += charge * yForce * 0.75;
 
-          nodeB.vx += xForce;
-          nodeB.vy += yForce;
-        } else {
-          nodeA.vx += xForce;
-          nodeA.vy += yForce;
-
-          nodeB.vx -= xForce;
-          nodeB.vy -= yForce;
-        }
+        nodeB.vx -= charge * xForce * 0.75;
+        nodeB.vy -= charge * yForce * 0.75;
       }
     }
     // update nodes
