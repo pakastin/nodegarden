@@ -91,6 +91,7 @@
             nodeA.y = Math.random() * wHeight;
             nodeA.vx = Math.random() * 2 - 1;
             nodeA.vy = Math.random() * 2 - 1;
+            nodeA.m = Math.random() * 1.5 + 1;
           }
 
           if (nodeB.m <= nodeA.m) {
@@ -98,6 +99,7 @@
             nodeB.y = Math.random() * wHeight;
             nodeB.vx = Math.random() * 2 - 1;
             nodeB.vy = Math.random() * 2 - 1;
+            nodeB.m = Math.random() * 1.5 + 1;
           }
           continue;
         }
