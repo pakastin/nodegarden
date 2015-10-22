@@ -2,7 +2,7 @@
 
 https://pakastin.github.io/nodegarden
 
-Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, just [simple physics](https://github.com/pakastin/nodegarden/blob/master/scripts/index.js#L113).
+Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, just [simple physics](https://github.com/pakastin/nodegarden/blob/master/scripts/index.js#L127).
 
 - Circles represent nodes
 - Node's mass is proportional to it's size
