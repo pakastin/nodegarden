@@ -1,4 +1,6 @@
 
+@import 'nib'
+
 *
   margin: 0
   padding: 0
@@ -17,3 +19,13 @@ body
   width: 100%
   height: 100%
   overflow: hidden
+
+@media (max-width: 1024px)
+  .ribbon
+    transform: scale(.75)
+    transform-origin: 100% 0
+
+@media (max-width: 640px)
+  .ribbon
+    transform: scale(.5)
+    transform-origin: 100% 0
