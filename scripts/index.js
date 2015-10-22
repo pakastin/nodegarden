@@ -48,9 +48,7 @@ function init () {
       y: Math.random() * wHeight,
       vx: Math.random() * 1 - 0.5,
       vy: Math.random() * 1 - 0.5,
-      m: Math.random() * 1.5 + 1,
-      link: null,
-      pos: false
+      m: Math.random() * 1.5 + 1
     }
   }
 }
@@ -126,23 +124,15 @@ function render () {
       ctx.lineTo(nodeB.x, nodeB.y)
       ctx.stroke()
 
-      xForce = force * direction.x
-      yForce = force * direction.y
+      xForce = force * direction.x * 0.75
+      yForce = force * direction.y * 0.75
 
       // calculate new velocity after gravity
-      if (nodeA.pos !== nodeB.pos) {
-        nodeA.vx -= xForce
-        nodeA.vy -= yForce
+      nodeA.vx += xForce
+      nodeA.vy += yForce
 
-        nodeB.vx += xForce
-        nodeB.vy += yForce
-      } else {
-        nodeA.vx += xForce
-        nodeA.vy += yForce
-
-        nodeB.vx -= xForce
-        nodeB.vy -= yForce
-      }
+      nodeB.vx -= xForce
+      nodeB.vy -= yForce
     }
   }
   // update nodes
