@@ -15,8 +15,6 @@ if (scale !== 1) {
   canvas.style.transform = 'scale(' + 1 / scale + ')'
   canvas.style.transformOrigin = '0 0'
 }
-canvas.width = wWidth
-canvas.height = wHeight
 canvas.id = 'nodegarden'
 
 $container.appendChild(canvas)
@@ -33,6 +31,10 @@ window.addEventListener('resize', function () {
 })
 
 function init () {
+  // set canvas size
+  canvas.width = wWidth
+  canvas.height = wHeight
+
   var i, len
   for (i = 0, len = nodes.length; i < len; i++) {
     if (nodes[i]) {
