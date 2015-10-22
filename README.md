@@ -1,5 +1,4 @@
-# nodegarden
-Node Garden
+# HTML5 Node Garden
 
 Just a simple node garden made with HTML5. No Barnes-Hut optimization, just simple physics.
 
