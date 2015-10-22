@@ -28,6 +28,7 @@
   render();
 
   window.addEventListener('resize', init);
+  window.addEventListener('click', resetRandom);
 
   function init() {
     wWidth = window.innerWidth * pixelRatio;
@@ -56,6 +57,19 @@
         pos: Math.random() >= 0.5
       };
     }
+  }
+
+  function resetRandom(e) {
+    var target = {
+      x: e.pageX,
+      y: e.pageY
+    };
+    var node = nodes[Math.floor(Math.random() * (nodes.length - 1))];
+    node.x = target.x;
+    node.y = target.y;
+    node.vx = 0;
+    node.vy = 0;
+    node.m = Math.random() * 1.5 + 1;
   }
 
   function render() {
