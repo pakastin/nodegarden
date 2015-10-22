@@ -4,9 +4,9 @@
   'use strict';
 
   var pixelRatio = window.devicePixelRatio;
-  var wWidth = window.innerWidth * pixelRatio;
-  var wHeight = window.innerHeight * pixelRatio;
-  var wArea = wWidth * wHeight;
+  var wWidth;
+  var wHeight;
+  var wArea;
 
   var nodes = new Array(Math.sqrt(wArea) / 10 | 0);
 
@@ -27,15 +27,16 @@
   init();
   render();
 
-  window.addEventListener('resize', function () {
+  window.addEventListener('resize', init);
+
+  function init() {
     wWidth = window.innerWidth * pixelRatio;
     wHeight = window.innerHeight * pixelRatio;
     wArea = wWidth * wHeight;
-    nodes.length = Math.sqrt(wArea) / 25 | 0;
-    init();
-  });
 
-  function init() {
+    // calculate nodes needed
+    nodes.length = Math.sqrt(wArea) / 25 | 0;
+
     // set canvas size
     canvas.width = wWidth;
     canvas.height = wHeight;
