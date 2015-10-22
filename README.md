@@ -12,6 +12,7 @@ Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, ju
 - When node travels over screen limits it will reset to a new location and size
 
 Alternate version (with electrons & positrons instead of "planets"):
+
 http://pakastin.github.io/nodegarden/electrons.html
 
 - red lines visualize attraction force
