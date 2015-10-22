@@ -46,8 +46,8 @@ function init () {
     nodes[i] = {
       x: Math.random() * wWidth,
       y: Math.random() * wHeight,
-      vx: Math.random() * 3 - 1.5,
-      vy: Math.random() * 3 - 1.5,
+      vx: Math.random() * 1 - 0.5,
+      vy: Math.random() * 1 - 0.5,
       m: Math.random() * 1.5 + 1,
       link: null,
       pos: false
@@ -80,21 +80,21 @@ function render () {
       // calculate distance
       distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2))
 
-      if (distance < Math.max(nodeA.m, nodeB.m)) {
+      if (distance < nodeA.m / 2 + nodeB.m / 2) {
         // collision: remove smaller or equal
         if (nodeA.m <= nodeB.m) {
           nodeA.x = Math.random() * wWidth
           nodeA.y = Math.random() * wHeight
-          nodeA.vx = Math.random() * 2 - 1
-          nodeA.vy = Math.random() * 2 - 1
+          nodeA.vx = Math.random() * 1 - 0.5
+          nodeA.vy = Math.random() * 1 - 0.5
           nodeA.m = Math.random() * 1.5 + 1
         }
 
         if (nodeB.m <= nodeA.m) {
           nodeB.x = Math.random() * wWidth
           nodeB.y = Math.random() * wHeight
-          nodeB.vx = Math.random() * 2 - 1
-          nodeB.vy = Math.random() * 2 - 1
+          nodeB.vx = Math.random() * 1 - 0.5
+          nodeB.vy = Math.random() * 1 - 0.5
           nodeB.m = Math.random() * 1.5 + 1
         }
         continue
@@ -158,8 +158,8 @@ function render () {
       // if node over screen limits - reset to a init position
       nodes[i].x = Math.random() * wWidth
       nodes[i].y = Math.random() * wHeight
-      nodes[i].vx = Math.random() * 2 - 1
-      nodes[i].vy = Math.random() * 2 - 1
+      nodes[i].vx = Math.random() * 1 - 0.5
+      nodes[i].vy = Math.random() * 1 - 0.5
     }
   }
 }
