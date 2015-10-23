@@ -152,8 +152,8 @@ function render () {
       nodeA.vx += charge * force * direction.x / nodeA.m
       nodeA.vy += charge * force * direction.y / nodeA.m
 
-      nodeB.vx -= force * direction.x / nodeB.m
-      nodeB.vy -= force * direction.y / nodeB.m
+      nodeB.vx -= charge * force * direction.x / nodeB.m
+      nodeB.vy -= charge * force * direction.y / nodeB.m
     }
   }
   if (nightMode) {
