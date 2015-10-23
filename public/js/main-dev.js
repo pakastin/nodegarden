@@ -152,17 +152,12 @@
         ctx.lineTo(nodeB.x, nodeB.y);
         ctx.stroke();
 
-        var xAccA = force * direction.x / nodeA.m;
-        var xAccB = force * direction.x / nodeA.m;
-        var yAccA = force * direction.y / nodeB.m;
-        var yAccB = force * direction.y / nodeB.m;
-
         // calculate new velocity after gravity
-        nodeA.vx += charge * xAccA;
-        nodeA.vy += charge * yAccA;
+        nodeA.vx += charge * force * direction.x / nodeA.m;
+        nodeA.vy += charge * force * direction.y / nodeA.m;
 
-        nodeB.vx -= charge * xAccB;
-        nodeB.vy -= charge * yAccB;
+        nodeB.vx -= force * direction.x / nodeB.m;
+        nodeB.vy -= force * direction.y / nodeB.m;
       }
     }
     if (nightMode) {
