@@ -27,7 +27,7 @@ init()
 render()
 
 window.addEventListener('resize', init)
-window.addEventListener('click', resetRandom)
+$container.addEventListener('click', resetRandom)
 $moon.addEventListener('click', switchNightmode)
 
 function init () {
