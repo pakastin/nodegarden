@@ -82,7 +82,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           _this.resize();
         });
 
-        window.addEventListener('click', function (e) {
+        document.getElementById('container').addEventListener('click', function (e) {
           e.stopPropagation();
           _this.resetRandomNode(e.pageX, e.pageY);
         });

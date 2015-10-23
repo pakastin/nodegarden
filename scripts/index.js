@@ -54,7 +54,7 @@ class NodeGarden {
 
     window.addEventListener('resize', () => {this.resize();});
 
-    window.addEventListener('click', (e) => {
+    document.getElementById('container').addEventListener('click', (e) => {
       e.stopPropagation();
       this.resetRandomNode(e.pageX, e.pageY);
     });
