@@ -20,8 +20,8 @@ class Node {
     this.mass = Math.random() * 1.5 + 1;
   }
 
-  isVisible(width, height) {
-    return !(this.x > width + 25 || this.x < -25 || this.y > width + 25 || this.y < -25);
+  isInvisible(width, height) {
+    return this.x > width + 25 || this.x < -25 || this.y > width + 25 || this.y < -25;
   }
 }
 
@@ -40,8 +40,10 @@ class NodeGarden {
     document.getElementById('container').appendChild(this.canvas);
 
     //Night mode
-    document.getElementsByClassName('moon')[0].addEventListener((e)=>{
+    document.getElementsByClassName('moon')[0].addEventListener('click',(e)=>{
+      console.log("da");
       e.stopPropagation();
+      console.log("dud");
       this.toggleNightMode();
     });
 
@@ -73,6 +75,8 @@ class NodeGarden {
       node.reset(this.canvas.width, this.canvas.height);
       this._nodes[i] = node;
     }
+    this.toggleNightMode();
+    this.toggleNightMode();
   }
 
   render() {
@@ -107,9 +111,9 @@ class NodeGarden {
             continue;
           }
         }
-        var force = 2 * (nodeA.mass * nodeB.mass) / distanceSquared;
+        var force = 3 * (nodeA.mass * nodeB.mass) / distanceSquared;
 
-        var opacity = force * 200;
+        var opacity = force * 100;
 
         // calculate distance
         var distance = Math.sqrt(distanceSquared);
@@ -118,7 +122,7 @@ class NodeGarden {
           y: yDistance / distance
         };
         this._ctx.beginPath();
-        if (this.isNightMode()) {
+        if (!this.isNightMode()) {
           this._ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
         } else {
           this._ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
@@ -147,7 +151,7 @@ class NodeGarden {
       this._ctx.arc(node.x, node.y, node.mass, 0, 2 * Math.PI);
       this._ctx.fill();
       node.update();
-      if (!node.isVisible(this.canvas.width, this.canvas.height)) {
+      if (node.isInvisible(this.canvas.width, this.canvas.height)) {
         node.reset(this.canvas.width, this.canvas.height);
       }
     });
@@ -155,7 +159,7 @@ class NodeGarden {
 
   toggleNightMode() {
     document.body.classList.toggle('nightmode');
-    if (!isNightMode()) {
+    if (this.isNightMode()) {
       this._ctx.fillStyle = '#ffffff';
     } else {
       this._ctx.fillStyle = '#000000';

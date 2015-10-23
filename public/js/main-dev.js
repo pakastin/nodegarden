@@ -34,9 +34,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         this.mass = Math.random() * 1.5 + 1;
       }
     }, {
-      key: 'isVisible',
-      value: function isVisible(width, height) {
-        return !(this.x > width + 25 || this.x < -25 || this.y > width + 25 || this.y < -25);
+      key: 'isInvisible',
+      value: function isInvisible(width, height) {
+        return this.x > width + 25 || this.x < -25 || this.y > width + 25 || this.y < -25;
       }
     }]);
 
@@ -66,8 +66,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         document.getElementById('container').appendChild(this.canvas);
 
         //Night mode
-        document.getElementsByClassName('moon')[0].addEventListener(function (e) {
+        document.getElementsByClassName('moon')[0].addEventListener('click', function (e) {
+          console.log("da");
           e.stopPropagation();
+          console.log("dud");
           _this.toggleNightMode();
         });
 
@@ -102,6 +104,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           node.reset(this.canvas.width, this.canvas.height);
           this._nodes[i] = node;
         }
+        this.toggleNightMode();
+        this.toggleNightMode();
       }
     }, {
       key: 'render',
@@ -141,9 +145,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 continue;
               }
             }
-            var force = 2 * (nodeA.mass * nodeB.mass) / distanceSquared;
+            var force = 3 * (nodeA.mass * nodeB.mass) / distanceSquared;
 
-            var opacity = force * 200;
+            var opacity = force * 100;
 
             // calculate distance
             var distance = Math.sqrt(distanceSquared);
@@ -152,7 +156,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               y: yDistance / distance
             };
             this._ctx.beginPath();
-            if (this.isNightMode()) {
+            if (!this.isNightMode()) {
               this._ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
             } else {
               this._ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
@@ -181,7 +185,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           _this2._ctx.arc(node.x, node.y, node.mass, 0, 2 * Math.PI);
           _this2._ctx.fill();
           node.update();
-          if (!node.isVisible(_this2.canvas.width, _this2.canvas.height)) {
+          if (node.isInvisible(_this2.canvas.width, _this2.canvas.height)) {
             node.reset(_this2.canvas.width, _this2.canvas.height);
           }
         });
@@ -190,7 +194,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'toggleNightMode',
       value: function toggleNightMode() {
         document.body.classList.toggle('nightmode');
-        if (!isNightMode()) {
+        if (this.isNightMode()) {
           this._ctx.fillStyle = '#ffffff';
         } else {
           this._ctx.fillStyle = '#000000';
