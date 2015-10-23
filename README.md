@@ -1,6 +1,6 @@
 # HTML5 Node Garden
 
-https://pakastin.github.io/nodegarden
+https://nodegarden.js.org
 
 Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, just simple physics.
 
@@ -13,7 +13,7 @@ Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, ju
 
 Alternate version (with electrons & positrons instead of "planets"):
 
-http://pakastin.github.io/nodegarden/electrons.html
+https://nodegarden.js.org/electrons.html
 
 - red lines visualize attraction force
 - blue lines visualize repel force
