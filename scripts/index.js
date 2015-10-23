@@ -17,7 +17,7 @@ class Node {
     this.y = Math.random() * height;
     this.velocityX = Math.random() * 1 - 0.5;
     this.velocityY = Math.random() * 1 - 0.5;
-    this.mass = Math.random() * 1.5 + 1;
+    this.mass = Math.random() * 2 + 1;
   }
 
   isInvisible(width, height) {
