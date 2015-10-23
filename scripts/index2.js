@@ -27,7 +27,7 @@ init()
 render()
 
 window.addEventListener('resize', init)
-window.addEventListener('click', resetRandom)
+canvas.addEventListener('click', resetRandom)
 $moon.addEventListener('click', switchNightmode)
 
 function init () {
@@ -53,8 +53,7 @@ function init () {
       y: Math.random() * wHeight,
       vx: Math.random() * 1 - 0.5,
       vy: Math.random() * 1 - 0.5,
-      m: Math.random() * 2 + 1,
-      pos: Math.random() >= 0.5
+      m: Math.random() * 2 + 1
     }
   }
 }
@@ -130,20 +129,18 @@ function render () {
       // calculate gravity force
       force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance, 2)
 
-      var opacity = force * 100
+      var opacity = force * 200
 
       if (opacity < 0.05) {
         continue
       }
 
-      var charge = nodeA.pos === nodeB.pos ? -1 : 1
-
       // draw gravity lines
       ctx.beginPath()
-      if (charge === 1) {
-        ctx.strokeStyle = 'rgba(191,63,31,' + (opacity < 1 ? opacity : 1) + ')'
+      if (nightMode) {
+        ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')'
       } else {
-        ctx.strokeStyle = 'rgba(31,63,191,' + (opacity < 1 ? opacity : 1) + ')'
+        ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')'
       }
       ctx.moveTo(nodeA.x, nodeA.y)
       ctx.lineTo(nodeB.x, nodeB.y)
@@ -155,11 +152,11 @@ function render () {
       var yAccB = force * direction.y / nodeB.m
 
       // calculate new velocity after gravity
-      nodeA.vx += charge * xAccA
-      nodeA.vy += charge * yAccA
+      nodeA.vx += xAccA
+      nodeA.vy += yAccA
 
-      nodeB.vx -= charge * xAccB
-      nodeB.vy -= charge * yAccB
+      nodeB.vx -= xAccB
+      nodeB.vy -= yAccB
     }
   }
   if (nightMode) {

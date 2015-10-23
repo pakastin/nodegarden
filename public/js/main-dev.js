@@ -57,7 +57,7 @@
         y: Math.random() * wHeight,
         vx: Math.random() * 1 - 0.5,
         vy: Math.random() * 1 - 0.5,
-        m: Math.random() * 1.5 + 1,
+        m: Math.random() * 2 + 1,
         pos: Math.random() >= 0.5
       };
     }
@@ -73,7 +73,7 @@
     node.y = target.y;
     node.vx = 0;
     node.vy = 0;
-    node.m = Math.random() * 1.5 + 1;
+    node.m = Math.random() * 2 + 1;
   }
 
   function render() {
@@ -103,20 +103,24 @@
         if (distance < nodeA.m / 2 + nodeB.m / 2) {
           // collision: remove smaller or equal - never both of them
           if (nodeA.m <= nodeB.m) {
+            nodeB.vx += nodeA.m * nodeA.vx / nodeB.m;
+            nodeB.vy += nodeA.m * nodeA.vy / nodeB.m;
             nodeA.x = Math.random() * wWidth;
             nodeA.y = Math.random() * wHeight;
             nodeA.vx = Math.random() * 1 - 0.5;
             nodeA.vy = Math.random() * 1 - 0.5;
-            nodeA.m = Math.random() * 1.5 + 1;
+            nodeA.m = Math.random() * 2 + 1;
             continue;
           }
 
           if (nodeB.m <= nodeA.m) {
+            nodeA.vx += nodeB.m * nodeB.vx / nodeA.m;
+            nodeA.vy += nodeB.m * nodeB.vy / nodeA.m;
             nodeB.x = Math.random() * wWidth;
             nodeB.y = Math.random() * wHeight;
             nodeB.vx = Math.random() * 1 - 0.5;
             nodeB.vy = Math.random() * 1 - 0.5;
-            nodeB.m = Math.random() * 1.5 + 1;
+            nodeB.m = Math.random() * 2 + 1;
             continue;
           }
         }
@@ -128,9 +132,9 @@
         };
 
         // calculate gravity force
-        force = 2 * (nodeA.m * nodeB.m) / Math.pow(distance, 2);
+        force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance, 2);
 
-        var opacity = force * 200;
+        var opacity = force * 100;
 
         if (opacity < 0.05) {
           continue;
