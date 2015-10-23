@@ -153,6 +153,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             var opacity = force * 100;
 
+            if (opacity < 0.05) {
+              continue;
+            }
+
             // calculate distance
             var distance = Math.sqrt(distanceSquared);
             var direction = {
