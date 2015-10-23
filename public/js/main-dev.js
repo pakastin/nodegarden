@@ -224,7 +224,7 @@
     if (resetNode > nodeGarden.nodes.length - 1) {
       resetNode = 0;
     }
-    nodeGarden.nodes[resetNode].reset({ x: e.pageX, y: e.pageY });
+    nodeGarden.nodes[resetNode].reset({ x: e.pageX, y: e.pageY, vx: 0, vy: 0 });
   });
   $moon.addEventListener('click', switchNightMode);
   window.addEventListener('resize', function () {
