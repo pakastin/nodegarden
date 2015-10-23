@@ -104,9 +104,13 @@ class NodeGarden {
         if (distanceSquared < (nodeA.mass / 2 + nodeB.mass / 2)*(nodeA.mass / 2 + nodeB.mass / 2)) {
           // collision: remove smaller or equal - never both of them
           if (nodeA.mass <= nodeB.mass) {
+            nodeB.velocityX = nodeB.mass * nodeB.velocityX / (nodeA.mass + nodeB.mass) + nodeA.mass * nodeA.velocityX / (nodeA.mass + nodeB.mass);
+            nodeB.velocityY = nodeB.mass * nodeB.velocityY / (nodeA.mass + nodeB.mass) + nodeA.mass * nodeA.velocityX / (nodeA.mass + nodeB.mass);
             nodeA.reset(this.canvas.width,this.canvas.height);
             continue;
           } else {
+            nodeA.velocityX = nodeA.mass * nodeA.velocityX / (nodeA.mass + nodeB.mass) + nodeB.mass * nodeB.velocityX / (nodeA.mass + nodeB.mass);
+            nodeA.velocityY = nodeA.mass * nodeA.velocityY / (nodeA.mass + nodeB.mass) + nodeB.mass * nodeB.velocityX / (nodeA.mass + nodeB.mass);
             nodeB.reset(this.canvas.width,this.canvas.height);
             continue;
           }
