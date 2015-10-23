@@ -95,11 +95,11 @@ function render () {
       // calculate distance
       distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2))
 
-      if (distance < nodeA.m / 2 + nodeB.m / 2) {
+      if (distance <= nodeA.m / 2 + nodeB.m / 2) {
         // collision: remove smaller or equal - never both of them
         if (nodeA.m <= nodeB.m) {
-          nodeB.vx += (nodeA.m * nodeA.vx) / nodeB.m
-          nodeB.vy += (nodeA.m * nodeA.vy) / nodeB.m
+          nodeB.vx = nodeB.m * nodeB.vx / (nodeA.m + nodeB.m) + nodeA.m * nodeA.vx / (nodeA.m + nodeB.m)
+          nodeB.vy = nodeB.m * nodeB.vy / (nodeA.m + nodeB.m) + nodeA.m * nodeA.vy / (nodeA.m + nodeB.m)
           nodeA.x = Math.random() * wWidth
           nodeA.y = Math.random() * wHeight
           nodeA.vx = Math.random() * 1 - 0.5
@@ -109,8 +109,8 @@ function render () {
         }
 
         if (nodeB.m <= nodeA.m) {
-          nodeA.vx += (nodeB.m * nodeB.vx) / nodeA.m
-          nodeA.vy += (nodeB.m * nodeB.vy) / nodeA.m
+          nodeA.vx = nodeA.m * nodeA.vx / (nodeA.m + nodeB.m) + nodeB.m * nodeB.vx / (nodeA.m + nodeB.m)
+          nodeA.vy = nodeA.m * nodeA.vy / (nodeA.m + nodeB.m) + nodeB.m * nodeB.vy / (nodeA.m + nodeB.m)
           nodeB.x = Math.random() * wWidth
           nodeB.y = Math.random() * wHeight
           nodeB.vx = Math.random() * 1 - 0.5
