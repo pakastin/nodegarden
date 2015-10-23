@@ -71,7 +71,6 @@ function render () {
   var distance
   var direction
   var force
-  var xForce, yForce
   var xDistance, yDistance
   var i, j, nodeA, nodeB, len
 
@@ -112,11 +111,6 @@ function render () {
         continue
       }
 
-      if (distance > 200) {
-        // distance over 200 pixels - ignore gravity
-        continue
-      }
-
       // calculate gravity direction
       direction = {
         x: xDistance / distance,
@@ -124,29 +118,32 @@ function render () {
       }
 
       // calculate gravity force
-      force = (10 * nodeA.m * nodeB.m) / Math.pow(distance, 2)
+      force = 2 * (nodeA.m * nodeB.m) / Math.pow(distance, 2)
 
-      if (force > 0.025) {
-        // cap force to a maximum value of 0.025
-        force = 0.025
+      var opacity = force * 200
+
+      if (opacity < 0.05) {
+        continue
       }
 
       // draw gravity lines
       ctx.beginPath()
-      ctx.strokeStyle = 'rgba(63,63,63,' + force * 40 + ')'
+      ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')'
       ctx.moveTo(nodeA.x, nodeA.y)
       ctx.lineTo(nodeB.x, nodeB.y)
       ctx.stroke()
 
-      xForce = force * direction.x * 0.75
-      yForce = force * direction.y * 0.75
+      var xAccA = force * direction.x / nodeA.m
+      var xAccB = force * direction.x / nodeA.m
+      var yAccA = force * direction.y / nodeB.m
+      var yAccB = force * direction.y / nodeB.m
 
       // calculate new velocity after gravity
-      nodeA.vx += xForce
-      nodeA.vy += yForce
+      nodeA.vx += xAccA
+      nodeA.vy += yAccA
 
-      nodeB.vx -= xForce
-      nodeB.vy -= yForce
+      nodeB.vx -= xAccB
+      nodeB.vy -= yAccB
     }
   }
   // update nodes
