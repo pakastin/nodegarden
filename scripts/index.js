@@ -10,6 +10,9 @@ var canvas = document.createElement('canvas')
 var ctx = canvas.getContext('2d')
 
 var $container = document.getElementById('container')
+var $moon = document.getElementsByClassName('moon')[0]
+
+var nightMode = false
 
 if (pixelRatio !== 1) {
   // if retina screen, scale canvas
@@ -25,6 +28,7 @@ render()
 
 window.addEventListener('resize', init)
 window.addEventListener('click', resetRandom)
+$moon.addEventListener('click', switchNightmode)
 
 function init () {
   wWidth = window.innerWidth * pixelRatio
@@ -154,6 +158,11 @@ function render () {
       nodeB.vy -= charge * yAccB
     }
   }
+  if (nightMode) {
+    ctx.fillStyle = '#ffffff'
+  } else {
+    ctx.fillStyle = '#000000'
+  }
   // update nodes
   for (i = 0, len = nodes.length; i < len; i++) {
     ctx.beginPath()
@@ -170,5 +179,16 @@ function render () {
       nodes[i].vx = Math.random() * 1 - 0.5
       nodes[i].vy = Math.random() * 1 - 0.5
     }
+  }
+}
+
+function switchNightmode (e) {
+  e.stopPropagation()
+
+  nightMode = !nightMode
+  if (nightMode) {
+    document.body.classList.add('nightmode')
+  } else {
+    document.body.classList.remove('nightmode')
   }
 }
