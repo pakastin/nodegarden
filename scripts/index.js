@@ -72,7 +72,6 @@ function render () {
   var distance
   var direction
   var force
-  var xForce, yForce
   var xDistance, yDistance
   var i, j, nodeA, nodeB, len
 
@@ -94,13 +93,14 @@ function render () {
       distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2))
 
       if (distance < nodeA.m / 2 + nodeB.m / 2) {
-        // collision: remove smaller or equal
+        // collision: remove smaller or equal - never both of them
         if (nodeA.m <= nodeB.m) {
           nodeA.x = Math.random() * wWidth
           nodeA.y = Math.random() * wHeight
           nodeA.vx = Math.random() * 1 - 0.5
           nodeA.vy = Math.random() * 1 - 0.5
           nodeA.m = Math.random() * 1.5 + 1
+          continue
         }
 
         if (nodeB.m <= nodeA.m) {
@@ -109,13 +109,8 @@ function render () {
           nodeB.vx = Math.random() * 1 - 0.5
           nodeB.vy = Math.random() * 1 - 0.5
           nodeB.m = Math.random() * 1.5 + 1
+          continue
         }
-        continue
-      }
-
-      if (distance > 200) {
-        // distance over 200 pixels - ignore gravity
-        continue
       }
 
       // calculate gravity direction
@@ -125,36 +120,38 @@ function render () {
       }
 
       // calculate gravity force
-      force = (10 * nodeA.m * nodeB.m) / Math.pow(distance, 2)
+      force = 2 * (nodeA.m * nodeB.m) / Math.pow(distance, 2)
 
-      if (force > 0.025) {
-        // cap force to a maximum value of 0.025
-        force = 0.025
+      var opacity = force * 200
+
+      if (opacity < 0.05) {
+        continue
       }
 
       var charge = nodeA.pos === nodeB.pos ? -1 : 1
 
       // draw gravity lines
       ctx.beginPath()
-
       if (charge === 1) {
-        ctx.strokeStyle = 'rgba(191,63,31,' + force * 40 + ')'
+        ctx.strokeStyle = 'rgba(191,63,31,' + (opacity < 1 ? opacity : 1) + ')'
       } else {
-        ctx.strokeStyle = 'rgba(31,63,191,' + force * 40 + ')'
+        ctx.strokeStyle = 'rgba(31,63,191,' + (opacity < 1 ? opacity : 1) + ')'
       }
       ctx.moveTo(nodeA.x, nodeA.y)
       ctx.lineTo(nodeB.x, nodeB.y)
       ctx.stroke()
 
-      xForce = force * direction.x
-      yForce = force * direction.y
+      var xAccA = force * direction.x / nodeA.m
+      var xAccB = force * direction.x / nodeA.m
+      var yAccA = force * direction.y / nodeB.m
+      var yAccB = force * direction.y / nodeB.m
 
       // calculate new velocity after gravity
-      nodeA.vx += charge * xForce * 0.75
-      nodeA.vy += charge * yForce * 0.75
+      nodeA.vx += charge * xAccA
+      nodeA.vy += charge * yAccA
 
-      nodeB.vx -= charge * xForce * 0.75
-      nodeB.vy -= charge * yForce * 0.75
+      nodeB.vx -= charge * xAccB
+      nodeB.vy -= charge * yAccB
     }
   }
   // update nodes
