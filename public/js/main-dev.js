@@ -184,6 +184,12 @@
     }
   }
 
+  var date = new Date();
+
+  if (date.getHours() > 18 || date.getHours() < 6) {
+    switchNightMode();
+  }
+
   function switchNightmode(e) {
     e.stopPropagation();
 
