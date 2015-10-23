@@ -1,197 +1,218 @@
 'use strict';
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
 (function () {
   'use strict';
 
-  var pixelRatio = window.devicePixelRatio;
-  var wWidth;
-  var wHeight;
-  var wArea;
+  var Node = (function () {
+    function Node() {
+      _classCallCheck(this, Node);
 
-  var nodes = new Array(Math.sqrt(wArea) / 10 | 0);
-
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-
-  var $container = document.getElementById('container');
-  var $moon = document.getElementsByClassName('moon')[0];
-
-  var nightMode = false;
-
-  if (pixelRatio !== 1) {
-    // if retina screen, scale canvas
-    canvas.style.transform = 'scale(' + 1 / pixelRatio + ')';
-    canvas.style.transformOrigin = '0 0';
-  }
-  canvas.id = 'nodegarden';
-
-  $container.appendChild(canvas);
-
-  init();
-  render();
-
-  window.addEventListener('resize', init);
-  window.addEventListener('click', resetRandom);
-
-  $moon.addEventListener('click', switchNightmode);
-
-  function init() {
-    wWidth = window.innerWidth * pixelRatio;
-    wHeight = window.innerHeight * pixelRatio;
-    wArea = wWidth * wHeight;
-
-    // calculate nodes needed
-    nodes.length = Math.sqrt(wArea) / 25 | 0;
-
-    // set canvas size
-    canvas.width = wWidth;
-    canvas.height = wHeight;
-
-    // create nodes
-    var i, len;
-    for (i = 0, len = nodes.length; i < len; i++) {
-      if (nodes[i]) {
-        continue;
-      }
-      nodes[i] = {
-        x: Math.random() * wWidth,
-        y: Math.random() * wHeight,
-        vx: Math.random() * 1 - 0.5,
-        vy: Math.random() * 1 - 0.5,
-        m: Math.random() * 1.5 + 1
-      };
+      this.x = 0;
+      this.y = 0;
+      this.velocityX = 0;
+      this.velocityY = 0;
+      this.mass = 0; //diameter as well
     }
-  }
 
-  function resetRandom(e) {
-    var target = {
-      x: e.pageX,
-      y: e.pageY
-    };
-    var node = nodes[Math.floor(Math.random() * (nodes.length - 1))];
-    node.x = target.x;
-    node.y = target.y;
-    node.vx = 0;
-    node.vy = 0;
-    node.m = Math.random() * 1.5 + 1;
-  }
+    _createClass(Node, [{
+      key: 'update',
+      value: function update() {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+      }
+    }, {
+      key: 'reset',
+      value: function reset(width, height) {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.velocityX = Math.random() * 1 - 0.5;
+        this.velocityY = Math.random() * 1 - 0.5;
+        this.mass = Math.random() * 1.5 + 1;
+      }
+    }, {
+      key: 'isVisible',
+      value: function isVisible(width, height) {
+        return !(this.x > width + 25 || this.x < -25 || this.y > width + 25 || this.y < -25);
+      }
+    }]);
 
-  function render() {
-    var distance;
-    var direction;
-    var force;
-    var xDistance, yDistance;
-    var i, j, nodeA, nodeB, len;
+    return Node;
+  })();
 
-    // request new animationFrame
-    requestAnimationFrame(render);
+  var NodeGarden = (function () {
+    function NodeGarden() {
+      _classCallCheck(this, NodeGarden);
+    }
 
-    // clear canvas
-    ctx.clearRect(0, 0, wWidth, wHeight);
+    _createClass(NodeGarden, [{
+      key: 'init',
+      value: function init() {
+        var _this = this;
 
-    // update links
-    for (i = 0, len = nodes.length - 1; i < len; i++) {
-      for (j = i + 1; j < len + 1; j++) {
-        nodeA = nodes[i];
-        nodeB = nodes[j];
-        xDistance = nodeB.x - nodeA.x;
-        yDistance = nodeB.y - nodeA.y;
+        //Create context
+        this.canvas = document.createElement('canvas');
+        this.canvas.id = "nodegarden";
+        if (window.devicePixelRatio !== 1) {
+          // if retina screen, scale canvas
+          this.canvas.style.transform = 'scale(' + 1 / window.devicePixelRatio + ')';
+          this.canvas.style.transformOrigin = '0 0';
+        }
 
-        // calculate distance
-        distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+        //Add to DOM
+        document.getElementById('container').appendChild(this.canvas);
 
-        if (distance < nodeA.m / 2 + nodeB.m / 2) {
-          // collision: remove smaller or equal - never both of them
-          if (nodeA.m <= nodeB.m) {
-            nodeA.x = Math.random() * wWidth;
-            nodeA.y = Math.random() * wHeight;
-            nodeA.vx = Math.random() * 1 - 0.5;
-            nodeA.vy = Math.random() * 1 - 0.5;
-            nodeA.m = Math.random() * 1.5 + 1;
+        //Night mode
+        document.getElementsByClassName('moon')[0].addEventListener(function (e) {
+          e.stopPropagation();
+          _this.toggleNightMode();
+        });
+
+        this._ctx = this.canvas.getContext('2d');
+        this._ctx.fillStyle = '#ffffff';
+        this._nodes = [];
+        this.resize();
+
+        window.addEventListener('resize', function () {
+          _this.resize();
+        });
+
+        window.addEventListener('click', function (e) {
+          e.stopPropagation();
+          _this.resetRandomNode(e.pageX, e.pageY);
+        });
+        //Init rendering
+        this.render();
+      }
+    }, {
+      key: 'resize',
+      value: function resize() {
+        this.canvas.width = window.innerWidth * window.devicePixelRatio;
+        this.canvas.height = window.innerHeight * window.devicePixelRatio;
+        this._nodes.length = Math.sqrt(this.canvas.width * this.canvas.height) / 25 | 0;
+        //Fill if empty space
+        for (var i = 0; i < this._nodes.length; i++) {
+          if (this._nodes[i]) {
             continue;
           }
+          var node = new Node();
+          node.reset(this.canvas.width, this.canvas.height);
+          this._nodes[i] = node;
+        }
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        var _this2 = this;
 
-          if (nodeB.m <= nodeA.m) {
-            nodeB.x = Math.random() * wWidth;
-            nodeB.y = Math.random() * wHeight;
-            nodeB.vx = Math.random() * 1 - 0.5;
-            nodeB.vy = Math.random() * 1 - 0.5;
-            nodeB.m = Math.random() * 1.5 + 1;
-            continue;
+        //requestAnimationFrame(()=>{setTimeout(()=>{this.render();},50);});
+        requestAnimationFrame(function () {
+          _this2.render();
+        });
+        //Clear canvas
+
+        this._ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        //Update links
+        for (var i = 0; i < this._nodes.length - 1; i++) {
+          var nodeA = this._nodes[i];
+          for (var j = i + 1; j < this._nodes.length; j++) {
+            var nodeB = this._nodes[j];
+            var xDistance = nodeB.x - nodeA.x;
+            var yDistance = nodeB.y - nodeA.y;
+
+            var distanceSquared = xDistance * xDistance + yDistance * yDistance;
+
+            //Increase with force increase
+            if (distanceSquared > 20000) {
+              continue;
+            }
+
+            if (distanceSquared < (nodeA.mass / 2 + nodeB.mass / 2) * (nodeA.mass / 2 + nodeB.mass / 2)) {
+              // collision: remove smaller or equal - never both of them
+              if (nodeA.mass <= nodeB.mass) {
+                nodeA.reset(this.canvas.width, this.canvas.height);
+                continue;
+              } else {
+                nodeB.reset(this.canvas.width, this.canvas.height);
+                continue;
+              }
+            }
+            var force = 2 * (nodeA.mass * nodeB.mass) / distanceSquared;
+
+            var opacity = force * 200;
+
+            // calculate distance
+            var distance = Math.sqrt(distanceSquared);
+            var direction = {
+              x: xDistance / distance,
+              y: yDistance / distance
+            };
+            this._ctx.beginPath();
+            if (this.isNightMode()) {
+              this._ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
+            } else {
+              this._ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
+            }
+            this._ctx.moveTo(nodeA.x, nodeA.y);
+            this._ctx.lineTo(nodeB.x, nodeB.y);
+            this._ctx.stroke();
+
+            var xAccA = force * direction.x / nodeA.mass;
+            var xAccB = force * direction.x / nodeA.mass;
+            var yAccA = force * direction.y / nodeB.mass;
+            var yAccB = force * direction.y / nodeB.mass;
+
+            // calculate new velocity after gravity
+            nodeA.velocityX += xAccA;
+            nodeA.velocityY += yAccA;
+
+            nodeB.velocityX -= xAccB;
+            nodeB.velocityY -= yAccB;
           }
         }
 
-        // calculate gravity direction
-        direction = {
-          x: xDistance / distance,
-          y: yDistance / distance
-        };
-
-        // calculate gravity force
-        force = 2 * (nodeA.m * nodeB.m) / Math.pow(distance, 2);
-
-        var opacity = force * 200;
-
-        if (opacity < 0.05) {
-          continue;
-        }
-
-        // draw gravity lines
-        ctx.beginPath();
-        if (nightMode) {
-          ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
+        //Render nodes
+        this._nodes.forEach(function (node, index) {
+          _this2._ctx.beginPath();
+          _this2._ctx.arc(node.x, node.y, node.mass, 0, 2 * Math.PI);
+          _this2._ctx.fill();
+          node.update();
+          if (!node.isVisible(_this2.canvas.width, _this2.canvas.height)) {
+            node.reset(_this2.canvas.width, _this2.canvas.height);
+          }
+        });
+      }
+    }, {
+      key: 'toggleNightMode',
+      value: function toggleNightMode() {
+        document.body.classList.toggle('nightmode');
+        if (!isNightMode()) {
+          this._ctx.fillStyle = '#ffffff';
         } else {
-          ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
+          this._ctx.fillStyle = '#000000';
         }
-        ctx.moveTo(nodeA.x, nodeA.y);
-        ctx.lineTo(nodeB.x, nodeB.y);
-        ctx.stroke();
-
-        var xAccA = force * direction.x / nodeA.m;
-        var xAccB = force * direction.x / nodeA.m;
-        var yAccA = force * direction.y / nodeB.m;
-        var yAccB = force * direction.y / nodeB.m;
-
-        // calculate new velocity after gravity
-        nodeA.vx += xAccA;
-        nodeA.vy += yAccA;
-
-        nodeB.vx -= xAccB;
-        nodeB.vy -= yAccB;
       }
-    }
-    if (nightMode) {
-      ctx.fillStyle = '#ffffff';
-    } else {
-      ctx.fillStyle = '#000000';
-    }
-    // update nodes
-    for (i = 0, len = nodes.length; i < len; i++) {
-      ctx.beginPath();
-      ctx.arc(nodes[i].x, nodes[i].y, nodes[i].m, 0, 2 * Math.PI);
-      ctx.fill();
-
-      nodes[i].x += nodes[i].vx;
-      nodes[i].y += nodes[i].vy;
-
-      if (nodes[i].x > wWidth + 25 || nodes[i].x < -25 || nodes[i].y > wHeight + 25 || nodes[i].y < -25) {
-        // if node over screen limits - reset to a init position
-        nodes[i].x = Math.random() * wWidth;
-        nodes[i].y = Math.random() * wHeight;
-        nodes[i].vx = Math.random() * 1 - 0.5;
-        nodes[i].vy = Math.random() * 1 - 0.5;
+    }, {
+      key: 'isNightMode',
+      value: function isNightMode() {
+        return document.body.classList.contains('nightmode');
       }
-    }
-  }
+    }, {
+      key: 'resetRandomNode',
+      value: function resetRandomNode(x, y) {
+        var node = this._nodes[Math.floor(Math.random() * (this._nodes.length - 1))];
+        node.reset(this.canvas.width, this.canvas.height);
+        //node.x = x;
+        //node.y = y;
+      }
+    }]);
 
-  function switchNightmode(e) {
-    e.stopPropagation();
+    return NodeGarden;
+  })();
 
-    nightMode = !nightMode;
-    if (nightMode) {
-      document.body.classList.add('nightmode');
-    } else {
-      document.body.classList.remove('nightmode');
-    }
-  }
+  new NodeGarden().init();
 })();
