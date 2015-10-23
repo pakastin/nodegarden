@@ -28,7 +28,7 @@ render()
 
 window.addEventListener('resize', init)
 $container.addEventListener('click', resetRandom)
-$moon.addEventListener('click', switchNightmode)
+$moon.addEventListener('click', switchNightMode)
 
 function init () {
   wWidth = window.innerWidth * pixelRatio
@@ -178,9 +178,13 @@ function render () {
   }
 }
 
-function switchNightmode (e) {
-  e.stopPropagation()
+var date = new Date()
 
+if (date.getHours() > 18 || date.getHours() < 6) {
+  switchNightMode()
+}
+
+function switchNightMode () {
   nightMode = !nightMode
   if (nightMode) {
     document.body.classList.add('nightmode')
