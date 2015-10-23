@@ -216,8 +216,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function resetRandomNode(x, y) {
         var node = this._nodes[Math.floor(Math.random() * (this._nodes.length - 1))];
         node.reset(this.canvas.width, this.canvas.height);
-        //node.x = x;
-        //node.y = y;
+        node.x = x;
+        node.y = y;
       }
     }]);
 

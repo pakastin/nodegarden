@@ -179,8 +179,8 @@ class NodeGarden {
   resetRandomNode(x, y) {
     let node = this._nodes[Math.floor(Math.random() * (this._nodes.length - 1))];
     node.reset(this.canvas.width, this.canvas.height);
-    //node.x = x;
-    //node.y = y;
+    node.x = x;
+    node.y = y;
   }
 }
 
