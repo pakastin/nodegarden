@@ -86,9 +86,8 @@
   };
 
   NodeGarden.prototype.resize = function () {
-    var size = this.container.getBoundingClientRect();
-    this.width = size.width * pixelRatio;
-    this.height = size.height * pixelRatio;
+    this.width = window.innerWidth * pixelRatio;
+    this.height = window.innerHeight * pixelRatio;
     this.area = this.width * this.height;
 
     // calculate nodes needed
