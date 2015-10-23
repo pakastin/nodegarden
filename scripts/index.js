@@ -41,9 +41,7 @@ class NodeGarden {
 
     //Night mode
     document.getElementsByClassName('moon')[0].addEventListener('click',(e)=>{
-      console.log("da");
       e.stopPropagation();
-      console.log("dud");
       this.toggleNightMode();
     });
 

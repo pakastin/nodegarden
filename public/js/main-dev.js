@@ -67,9 +67,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         //Night mode
         document.getElementsByClassName('moon')[0].addEventListener('click', function (e) {
-          console.log("da");
           e.stopPropagation();
-          console.log("dud");
           _this.toggleNightMode();
         });
 
