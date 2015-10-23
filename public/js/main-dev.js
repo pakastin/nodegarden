@@ -141,7 +141,11 @@
 
         // draw gravity lines
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(127,127,127,' + (opacity < 1 ? opacity : 1) + ')';
+        if (nightMode) {
+          ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
+        } else {
+          ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
+        }
         ctx.moveTo(nodeA.x, nodeA.y);
         ctx.lineTo(nodeB.x, nodeB.y);
         ctx.stroke();
