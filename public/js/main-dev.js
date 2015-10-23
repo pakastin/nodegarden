@@ -133,7 +133,7 @@
         // calculate gravity force
         force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance, 2);
 
-        var opacity = force * 200;
+        var opacity = force * 100;
 
         if (opacity < 0.05) {
           continue;
@@ -141,11 +141,7 @@
 
         // draw gravity lines
         ctx.beginPath();
-        if (nightMode) {
-          ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
-        } else {
-          ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
-        }
+        ctx.strokeStyle = 'rgba(127,127,127,' + (opacity < 1 ? opacity : 1) + ')';
         ctx.moveTo(nodeA.x, nodeA.y);
         ctx.lineTo(nodeB.x, nodeB.y);
         ctx.stroke();
