@@ -3,135 +3,160 @@
 (function () {
   'use strict';
 
-  var pixelRatio = window.devicePixelRatio;
-  var wWidth;
-  var wHeight;
-  var wArea;
-
-  var nodes = new Array(Math.sqrt(wArea) / 10 | 0);
-
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-
-  var $container = document.getElementById('container');
-  var $moon = document.getElementsByClassName('moon')[0];
-
-  var nightMode = false;
-
-  if (pixelRatio !== 1) {
-    // if retina screen, scale canvas
-    canvas.style.transform = 'scale(' + 1 / pixelRatio + ')';
-    canvas.style.transformOrigin = '0 0';
+  function defined(a, b) {
+    return a != null ? a : b;
   }
-  canvas.id = 'nodegarden';
 
-  $container.appendChild(canvas);
+  function Node(garden) {
+    this.garden = garden;
+    this.reset();
+  }
 
-  init();
-  render();
+  Node.prototype.reset = function () {
+    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-  window.addEventListener('resize', init);
-  $container.addEventListener('click', resetRandom);
-  $moon.addEventListener('click', switchNightmode);
+    var x = _ref.x;
+    var y = _ref.y;
+    var vx = _ref.vx;
+    var vy = _ref.vy;
+    var m = _ref.m;
 
-  function init() {
-    wWidth = window.innerWidth * pixelRatio;
-    wHeight = window.innerHeight * pixelRatio;
-    wArea = wWidth * wHeight;
+    this.x = defined(x, Math.random() * this.garden.width);
+    this.y = defined(y, Math.random() * this.garden.height);
+    this.vx = defined(vx, Math.random() * 1 - 0.5);
+    this.vy = defined(vy, Math.random() * 1 - 0.5);
+    this.m = defined(m, Math.random() * 2 + 1);
+    this.pos = Math.random() >= 0.5;
+  };
+
+  Node.prototype.addForce = function (force, direction) {
+    this.vx += force * direction.x / this.m;
+    this.vy += force * direction.y / this.m;
+  };
+
+  Node.prototype.distanceTo = function (node) {
+    var x = node.x - this.x;
+    var y = node.y - this.y;
+    var total = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+    return { x: x, y: y, total: total };
+  };
+
+  Node.prototype.collideTo = function (node) {
+    node.vx = node.m * node.vx / (this.m + node.m) + this.m * this.vx / (this.m + node.m);
+    node.vy = node.m * node.vy / (this.m + node.m) + this.m * this.vy / (this.m + node.m);
+
+    this.reset();
+  };
+
+  var pixelRatio = window.devicePixelRatio;
+
+  function NodeGarden(container) {
+    this.nodes = [];
+    this.container = container;
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.nightMode = false;
+    this.started = false;
+
+    if (pixelRatio !== 1) {
+      // if retina screen, scale canvas
+      this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')';
+      this.canvas.style.transformOrigin = '0 0';
+    }
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+    this.canvas.id = 'nodegarden';
+    this.resize();
+    this.container.appendChild(this.canvas);
+  }
+
+  NodeGarden.prototype.start = function () {
+    if (!this.playing) {
+      this.playing = true;
+      this.render(true);
+    }
+  };
+
+  NodeGarden.prototype.stop = function () {
+    if (this.playing) {
+      this.playing = false;
+    }
+  };
+
+  NodeGarden.prototype.resize = function () {
+    var size = this.container.getBoundingClientRect();
+    this.width = size.width * pixelRatio;
+    this.height = size.height * pixelRatio;
+    this.area = this.width * this.height;
 
     // calculate nodes needed
-    nodes.length = Math.sqrt(wArea) / 25 | 0;
+    this.nodes.length = Math.sqrt(this.area) / 25 | 0;
 
     // set canvas size
-    canvas.width = wWidth;
-    canvas.height = wHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
 
     // create nodes
-    var i, len;
-    for (i = 0, len = nodes.length; i < len; i++) {
-      if (nodes[i]) {
+    for (var i = 0, len = this.nodes.length; i < len; i++) {
+      if (this.nodes[i]) {
         continue;
       }
-      nodes[i] = {
-        x: Math.random() * wWidth,
-        y: Math.random() * wHeight,
-        vx: Math.random() * 1 - 0.5,
-        vy: Math.random() * 1 - 0.5,
-        m: Math.random() * 2 + 1,
-        pos: Math.random() >= 0.5
-      };
+      this.nodes[i] = new Node(this);
     }
-  }
+  };
 
-  function resetRandom(e) {
-    var target = {
-      x: e.pageX,
-      y: e.pageY
-    };
-    var node = nodes[Math.floor(Math.random() * (nodes.length - 1))];
-    node.x = target.x;
-    node.y = target.y;
-    node.vx = 0;
-    node.vy = 0;
-    node.m = Math.random() * 2 + 1;
-  }
+  NodeGarden.prototype.render = function (start) {
+    var _this = this;
 
-  function render() {
     var distance;
     var direction;
     var force;
-    var xDistance, yDistance;
-    var i, j, nodeA, nodeB, len;
+    var node, nodeA, nodeB;
+    var i, j, len;
 
-    // request new animationFrame
-    requestAnimationFrame(render);
+    if (!this.playing) {
+      return;
+    }
+
+    if (start) {
+      requestAnimationFrame(function () {
+        _this.render(true);
+      });
+    }
 
     // clear canvas
-    ctx.clearRect(0, 0, wWidth, wHeight);
+    this.ctx.clearRect(0, 0, this.width, this.height);
 
     // update links
-    for (i = 0, len = nodes.length - 1; i < len; i++) {
+    for (i = 0, len = this.nodes.length - 1; i < len; i++) {
       for (j = i + 1; j < len + 1; j++) {
-        nodeA = nodes[i];
-        nodeB = nodes[j];
-        xDistance = nodeB.x - nodeA.x;
-        yDistance = nodeB.y - nodeA.y;
+        nodeA = this.nodes[i];
+        nodeB = this.nodes[j];
 
-        // calculate distance
-        distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+        distance = nodeA.distanceTo(nodeB);
 
-        if (distance <= nodeA.m / 2 + nodeB.m / 2) {
+        if (distance.total <= nodeA.m / 2 + nodeB.m / 2) {
           // collision: remove smaller or equal - never both of them
           if (nodeA.m <= nodeB.m) {
-            nodeB.vx = nodeB.m * nodeB.vx / (nodeA.m + nodeB.m) + nodeA.m * nodeA.vx / (nodeA.m + nodeB.m);
-            nodeB.vy = nodeB.m * nodeB.vy / (nodeA.m + nodeB.m) + nodeA.m * nodeA.vy / (nodeA.m + nodeB.m);
-            nodeA.x = Math.random() * wWidth;
-            nodeA.y = Math.random() * wHeight;
-            nodeA.vx = Math.random() * 1 - 0.5;
-            nodeA.vy = Math.random() * 1 - 0.5;
-            nodeA.m = Math.random() * 2 + 1;
+            nodeA.collideTo(nodeB);
             continue;
           }
-
           if (nodeB.m <= nodeA.m) {
-            nodeA.vx = nodeA.m * nodeA.vx / (nodeA.m + nodeB.m) + nodeB.m * nodeB.vx / (nodeA.m + nodeB.m);
-            nodeA.vy = nodeA.m * nodeA.vy / (nodeA.m + nodeB.m) + nodeB.m * nodeB.vy / (nodeA.m + nodeB.m);
-            nodeB.x = Math.random() * wWidth;
-            nodeB.y = Math.random() * wHeight;
-            nodeB.vx = Math.random() * 1 - 0.5;
-            nodeB.vy = Math.random() * 1 - 0.5;
-            nodeB.m = Math.random() * 2 + 1;
+            nodeB.collideTo(nodeA);
             continue;
           }
         }
+
         // calculate gravity direction
         direction = {
-          x: xDistance / distance,
-          y: yDistance / distance
+          x: distance.x / distance.total,
+          y: distance.y / distance.total
         };
 
         // calculate gravity force
-        force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance, 2);
+        force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance.total, 2);
 
         var opacity = force * 100;
 
@@ -142,59 +167,73 @@
         var charge = nodeA.pos === nodeB.pos ? -1 : 1;
 
         // draw gravity lines
-        ctx.beginPath();
+        this.ctx.beginPath();
         if (charge === 1) {
-          ctx.strokeStyle = 'rgba(191,63,31,' + (opacity < 1 ? opacity : 1) + ')';
+          this.ctx.strokeStyle = 'rgba(191,63,31,' + (opacity < 1 ? opacity : 1) + ')';
         } else {
-          ctx.strokeStyle = 'rgba(31,63,191,' + (opacity < 1 ? opacity : 1) + ')';
+          this.ctx.strokeStyle = 'rgba(31,63,191,' + (opacity < 1 ? opacity : 1) + ')';
         }
-        ctx.moveTo(nodeA.x, nodeA.y);
-        ctx.lineTo(nodeB.x, nodeB.y);
-        ctx.stroke();
+        this.ctx.moveTo(nodeA.x, nodeA.y);
+        this.ctx.lineTo(nodeB.x, nodeB.y);
+        this.ctx.stroke();
 
-        // calculate new velocity after gravity
-        nodeA.vx += charge * force * direction.x / nodeA.m;
-        nodeA.vy += charge * force * direction.y / nodeA.m;
-
-        nodeB.vx -= charge * force * direction.x / nodeB.m;
-        nodeB.vy -= charge * force * direction.y / nodeB.m;
+        nodeA.addForce(charge * force, direction);
+        nodeB.addForce(charge * -force, direction);
       }
     }
-    if (nightMode) {
-      ctx.fillStyle = '#ffffff';
+    if (this.nightMode) {
+      this.ctx.fillStyle = '#ffffff';
     } else {
-      ctx.fillStyle = '#000000';
+      this.ctx.fillStyle = '#000000';
     }
     // update nodes
-    for (i = 0, len = nodes.length; i < len; i++) {
-      ctx.beginPath();
-      ctx.arc(nodes[i].x, nodes[i].y, nodes[i].m, 0, 2 * Math.PI);
-      ctx.fill();
+    for (i = 0, len = this.nodes.length; i < len; i++) {
+      node = this.nodes[i];
+      this.ctx.beginPath();
+      this.ctx.arc(node.x, node.y, node.m, 0, 2 * Math.PI);
+      this.ctx.fill();
 
-      nodes[i].x += nodes[i].vx;
-      nodes[i].y += nodes[i].vy;
+      node.x += node.vx;
+      node.y += node.vy;
 
-      if (nodes[i].x > wWidth + 25 || nodes[i].x < -25 || nodes[i].y > wHeight + 25 || nodes[i].y < -25) {
+      if (node.x > this.width + 25 || node.x < -25 || node.y > this.height + 25 || node.y < -25) {
         // if node over screen limits - reset to a init position
-        nodes[i].x = Math.random() * wWidth;
-        nodes[i].y = Math.random() * wHeight;
-        nodes[i].vx = Math.random() * 1 - 0.5;
-        nodes[i].vy = Math.random() * 1 - 0.5;
+        node.reset();
       }
     }
-  }
+  };
 
+  var $container = document.getElementById('container');
+  var $moon = document.getElementsByClassName('moon')[0];
+
+  var nodeGarden = new NodeGarden($container);
   var date = new Date();
 
+  // start simulation
+  nodeGarden.start();
+
+  // trigger nightMode automatically
   if (date.getHours() > 18 || date.getHours() < 6) {
     switchNightMode();
   }
 
-  function switchNightmode(e) {
-    e.stopPropagation();
+  var resetNode = -1;
 
-    nightMode = !nightMode;
-    if (nightMode) {
+  $container.addEventListener('click', function (e) {
+    resetNode++;
+    if (resetNode > nodeGarden.nodes.length - 1) {
+      resetNode = 0;
+    }
+    nodeGarden.nodes[resetNode].reset({ x: e.pageX, y: e.pageY });
+  });
+  $moon.addEventListener('click', switchNightMode);
+  window.addEventListener('resize', function () {
+    nodeGarden.resize();
+  });
+
+  function switchNightMode() {
+    nodeGarden.nightMode = !nodeGarden.nightMode;
+    if (nodeGarden.nightMode) {
       document.body.classList.add('nightmode');
     } else {
       document.body.classList.remove('nightmode');
