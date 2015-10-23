@@ -92,13 +92,14 @@ function render () {
       distance = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2))
 
       if (distance < nodeA.m / 2 + nodeB.m / 2) {
-        // collision: remove smaller or equal
+        // collision: remove smaller or equal - never both of them
         if (nodeA.m <= nodeB.m) {
           nodeA.x = Math.random() * wWidth
           nodeA.y = Math.random() * wHeight
           nodeA.vx = Math.random() * 1 - 0.5
           nodeA.vy = Math.random() * 1 - 0.5
           nodeA.m = Math.random() * 1.5 + 1
+          continue
         }
 
         if (nodeB.m <= nodeA.m) {
@@ -107,8 +108,8 @@ function render () {
           nodeB.vx = Math.random() * 1 - 0.5
           nodeB.vy = Math.random() * 1 - 0.5
           nodeB.m = Math.random() * 1.5 + 1
+          continue
         }
-        continue
       }
 
       // calculate gravity direction
