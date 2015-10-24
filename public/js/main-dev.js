@@ -79,8 +79,20 @@
     this.container = container;
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.ctx.fillStyle = '#000000';
     this.started = false;
+    this.nightmode = false;
+
+    window.addEventListener('keydown', function (e) {
+      if (e.which === 16) {
+        mouseNode.m = 15;
+      }
+    });
+
+    window.addEventListener('keyup', function (e) {
+      if (e.which === 16) {
+        mouseNode.m = 0;
+      }
+    });
 
     if (pixelRatio$1 !== 1) {
       // if retina screen, scale canvas
@@ -89,18 +101,14 @@
     }
     this.canvas.id = 'nodegarden';
 
-    //Add mouse node
+    // Add mouse node
     var mouseNode = new Node(this);
-    mouseNode.m = 15;
-
-    mouseNode.getDiameter = function () {
-      return 0.1;
-    };
+    mouseNode.m = 0;
 
     mouseNode.update = function () {};
     mouseNode.reset = function () {};
     mouseNode.render = function () {};
-    //Move coordinates to unreachable zone
+    // Move coordinates to unreachable zone
     mouseNode.x = Number.MAX_SAFE_INTEGER;
     mouseNode.y = Number.MAX_SAFE_INTEGER;
 
@@ -114,7 +122,7 @@
       mouseNode.y = Number.MAX_SAFE_INTEGER;
     });
 
-    this.nodes.push(mouseNode);
+    this.nodes.unshift(mouseNode);
 
     this.resize();
     this.container.appendChild(this.canvas);
@@ -139,31 +147,35 @@
     this.area = this.width * this.height;
 
     // calculate nodes needed
-    var needed = (Math.sqrt(this.area) / 25 | 0) - this.nodes.length;
+    this.nodes.length = Math.sqrt(this.area) / 25 | 0;
+
     // set canvas size
     this.canvas.width = this.width;
     this.canvas.height = this.height;
 
-    if (needed < 0) {
-      return;
-    }
-
-    // create nodes
-    for (var i = 0; i < needed; i++) {
-      this.nodes.push(new Node(this));
-    }
-  };
-
-  NodeGarden.prototype.isNightMode = function () {
-    return document.body.classList.contains('nightmode');
-  };
-
-  NodeGarden.prototype.toggleNightMode = function () {
-    document.body.classList.toggle('nightmode');
-    if (this.isNightMode()) {
+    if (this.nightMode) {
       this.ctx.fillStyle = '#ffffff';
     } else {
       this.ctx.fillStyle = '#000000';
+    }
+
+    // create nodes
+    for (var i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i]) {
+        continue;
+      }
+      this.nodes[i] = new Node(this);
+    }
+  };
+
+  NodeGarden.prototype.toggleNightMode = function () {
+    this.nightMode = !this.nightMode;
+    if (this.nightMode) {
+      this.ctx.fillStyle = '#ffffff';
+      document.body.classList.add('nightmode');
+    } else {
+      this.ctx.fillStyle = '#000000';
+      document.body.classList.remove('nightmode');
     }
   };
 
@@ -200,7 +212,7 @@
           continue;
         }
 
-        if (squaredDistance <= (nodeA.getDiameter() / 2 + nodeB.getDiameter() / 2) * (nodeA.getDiameter() / 2 + nodeB.getDiameter() / 2)) {
+        if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
           // collision: remove smaller or equal - never both of them
           if (nodeA.m <= nodeB.m) {
             nodeA.collideTo(nodeB);
@@ -220,7 +232,7 @@
 
         // draw gravity lines
         this.ctx.beginPath();
-        if (this.isNightMode()) {
+        if (this.nightMode) {
           this.ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
         } else {
           this.ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
@@ -234,12 +246,13 @@
       }
     }
     // render and update nodes
-    for (var i = 0; i < this.nodes.length; i++) {
+    for (i = 0; i < this.nodes.length; i++) {
       this.nodes[i].render();
       this.nodes[i].update();
     }
   };
 
+  var pixelRatio = window.devicePixelRatio;
   var $container = document.getElementById('container');
   var $moon = document.getElementsByClassName('moon')[0];
 
@@ -254,11 +267,14 @@
     nodeGarden.toggleNightMode();
   }
 
-  $container.addEventListener('click', function (e) {
-    var node = new Node(nodeGarden);
-    var angle = Math.random() * 2 * Math.PI;
-    node.reset({ x: e.pageX + 100 * Math.cos(angle), y: e.pageY + 100 * Math.sin(angle) });
-    nodeGarden.nodes.push(node);
+  var resetNode = 0;
+
+  $container.addEventListener('mousedown', function (e) {
+    resetNode++;
+    if (resetNode > nodeGarden.nodes.length - 1) {
+      resetNode = 1;
+    }
+    nodeGarden.nodes[resetNode].reset({ x: e.pageX * pixelRatio, y: e.pageY * pixelRatio, vx: 0, vy: 0 });
   });
 
   $moon.addEventListener('click', function () {

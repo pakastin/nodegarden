@@ -1,4 +1,4 @@
-import Node from './node'
+
 import NodeGarden from './nodegarden'
 
 var pixelRatio = window.devicePixelRatio
@@ -16,11 +16,14 @@ if (date.getHours() > 18 || date.getHours() < 6) {
   nodeGarden.toggleNightMode()
 }
 
-$container.addEventListener('click', function (e) {
-  let node = new Node(nodeGarden)
-  let angle = Math.random()*2*Math.PI
-  node.reset({x: e.pageX + 100*Math.cos(angle), y: e.pageY + 100*Math.sin(angle)})
-  nodeGarden.nodes.push(node)
+var resetNode = 0
+
+$container.addEventListener('mousedown', function (e) {
+  resetNode++
+  if (resetNode > nodeGarden.nodes.length - 1) {
+    resetNode = 1
+  }
+  nodeGarden.nodes[resetNode].reset({x: e.pageX * pixelRatio, y: e.pageY * pixelRatio, vx: 0, vy: 0})
 })
 
 $moon.addEventListener('click', () => { nodeGarden.toggleNightMode() })
