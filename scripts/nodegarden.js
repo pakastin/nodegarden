@@ -16,9 +16,6 @@ export default function NodeGarden (container) {
     this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')'
     this.canvas.style.transformOrigin = '0 0'
   }
-  this.canvas.style.position = 'absolute'
-  this.canvas.style.width = '100%'
-  this.canvas.style.height = '100%'
   this.canvas.id = 'nodegarden'
 
   //Add mouse node

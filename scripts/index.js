@@ -1,6 +1,7 @@
 import Node from './node'
 import NodeGarden from './nodegarden'
 
+var pixelRatio = window.devicePixelRatio
 var $container = document.getElementById('container')
 var $moon = document.getElementsByClassName('moon')[0]
 
@@ -20,7 +21,6 @@ $container.addEventListener('click', function (e) {
   let angle = Math.random()*2*Math.PI
   node.reset({x: e.pageX + 100*Math.cos(angle), y: e.pageY + 100*Math.sin(angle)})
   nodeGarden.nodes.push(node)
-  console.log(nodeGarden.nodes.length)
 })
 
 $moon.addEventListener('click', () => { nodeGarden.toggleNightMode() })

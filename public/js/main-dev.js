@@ -72,7 +72,7 @@
     return this.m;
   };
 
-  var pixelRatio = window.devicePixelRatio;
+  var pixelRatio$1 = window.devicePixelRatio;
 
   function NodeGarden(container) {
     this.nodes = [];
@@ -82,14 +82,11 @@
     this.ctx.fillStyle = '#000000';
     this.started = false;
 
-    if (pixelRatio !== 1) {
+    if (pixelRatio$1 !== 1) {
       // if retina screen, scale canvas
-      this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')';
+      this.canvas.style.transform = 'scale(' + 1 / pixelRatio$1 + ')';
       this.canvas.style.transformOrigin = '0 0';
     }
-    this.canvas.style.position = 'absolute';
-    this.canvas.style.width = '100%';
-    this.canvas.style.height = '100%';
     this.canvas.id = 'nodegarden';
 
     //Add mouse node
@@ -137,8 +134,8 @@
   };
 
   NodeGarden.prototype.resize = function () {
-    this.width = window.innerWidth * pixelRatio;
-    this.height = window.innerHeight * pixelRatio;
+    this.width = window.innerWidth * pixelRatio$1;
+    this.height = window.innerHeight * pixelRatio$1;
     this.area = this.width * this.height;
 
     // calculate nodes needed
@@ -262,7 +259,6 @@
     var angle = Math.random() * 2 * Math.PI;
     node.reset({ x: e.pageX + 100 * Math.cos(angle), y: e.pageY + 100 * Math.sin(angle) });
     nodeGarden.nodes.push(node);
-    console.log(nodeGarden.nodes.length);
   });
 
   $moon.addEventListener('click', function () {
