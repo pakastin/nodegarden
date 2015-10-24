@@ -41,6 +41,10 @@
     return { x: x, y: y, total: total };
   };
 
+  Node.prototype.squaredDistanceTo = function (node) {
+    return (node.x - this.x) * (node.x - this.x) + (node.y - this.y) * (node.y - this.y);
+  };
+
   Node.prototype.collideTo = function (node) {
     node.vx = node.m * node.vx / (this.m + node.m) + this.m * this.vx / (this.m + node.m);
     node.vy = node.m * node.vy / (this.m + node.m) + this.m * this.vy / (this.m + node.m);
@@ -55,7 +59,7 @@
     this.container = container;
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.nightMode = false;
+    this.ctx.fillStyle = '#000000';
     this.started = false;
 
     if (pixelRatio !== 1) {
@@ -63,6 +67,9 @@
       this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')';
       this.canvas.style.transformOrigin = '0 0';
     }
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
     this.canvas.id = 'nodegarden';
     this.resize();
     this.container.appendChild(this.canvas);
@@ -94,7 +101,7 @@
     this.canvas.height = this.height;
 
     // create nodes
-    for (var i = 0, len = this.nodes.length; i < len; i++) {
+    for (var i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i]) {
         continue;
       }
@@ -102,14 +109,21 @@
     }
   };
 
+  NodeGarden.prototype.isNightMode = function () {
+    return document.body.classList.contains('nightmode');
+  };
+
+  NodeGarden.prototype.toggleNightMode = function () {
+    document.body.classList.toggle('nightmode');
+    if (this.isNightMode()) {
+      this.ctx.fillStyle = '#ffffff';
+    } else {
+      this.ctx.fillStyle = '#000000';
+    }
+  };
+
   NodeGarden.prototype.render = function (start) {
     var _this = this;
-
-    var distance;
-    var direction;
-    var force;
-    var node, nodeA, nodeB;
-    var i, j, len;
 
     if (!this.playing) {
       return;
@@ -125,33 +139,15 @@
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     // update links
-    for (i = 0, len = this.nodes.length - 1; i < len; i++) {
-      for (j = i + 1; j < len + 1; j++) {
-        nodeA = this.nodes[i];
+    var node, nodeA, nodeB;
+    for (var i = 0; i < this.nodes.length - 1; i++) {
+      nodeA = this.nodes[i];
+      for (var j = i + 1; j < this.nodes.length; j++) {
         nodeB = this.nodes[j];
-
-        distance = nodeA.distanceTo(nodeB);
-
-        if (distance.total <= nodeA.m / 2 + nodeB.m / 2) {
-          // collision: remove smaller or equal - never both of them
-          if (nodeA.m <= nodeB.m) {
-            nodeA.collideTo(nodeB);
-            continue;
-          }
-          if (nodeB.m <= nodeA.m) {
-            nodeB.collideTo(nodeA);
-            continue;
-          }
-        }
-
-        // calculate gravity direction
-        direction = {
-          x: distance.x / distance.total,
-          y: distance.y / distance.total
-        };
+        var squaredDistance = nodeA.squaredDistanceTo(nodeB);
 
         // calculate gravity force
-        force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance.total, 2);
+        var force = 3 * (nodeA.m * nodeB.m) / squaredDistance;
 
         var opacity = force * 100;
 
@@ -159,9 +155,27 @@
           continue;
         }
 
+        if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
+          // collision: remove smaller or equal - never both of them
+          if (nodeA.m <= nodeB.m) {
+            nodeA.collideTo(nodeB);
+          } else {
+            nodeB.collideTo(nodeA);
+          }
+          continue;
+        }
+
+        var distance = nodeA.distanceTo(nodeB);
+
+        // calculate gravity direction
+        var direction = {
+          x: distance.x / distance.total,
+          y: distance.y / distance.total
+        };
+
         // draw gravity lines
         this.ctx.beginPath();
-        if (this.nightMode) {
+        if (this.isNightMode()) {
           this.ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
         } else {
           this.ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
@@ -174,13 +188,8 @@
         nodeB.addForce(-force, direction);
       }
     }
-    if (this.nightMode) {
-      this.ctx.fillStyle = '#ffffff';
-    } else {
-      this.ctx.fillStyle = '#000000';
-    }
     // update nodes
-    for (i = 0, len = this.nodes.length; i < len; i++) {
+    for (var i = 0; i < this.nodes.length; i++) {
       node = this.nodes[i];
       this.ctx.beginPath();
       this.ctx.arc(node.x, node.y, node.m, 0, 2 * Math.PI);
@@ -200,14 +209,14 @@
   var $moon = document.getElementsByClassName('moon')[0];
 
   var nodeGarden = new NodeGarden($container);
-  var date = new Date();
 
   // start simulation
   nodeGarden.start();
 
   // trigger nightMode automatically
+  var date = new Date();
   if (date.getHours() > 18 || date.getHours() < 6) {
-    switchNightMode();
+    nodeGarden.toggleNightMode();
   }
 
   var resetNode = -1;
@@ -219,17 +228,11 @@
     }
     nodeGarden.nodes[resetNode].reset({ x: e.pageX, y: e.pageY, vx: 0, vy: 0 });
   });
-  $moon.addEventListener('click', switchNightMode);
+
+  $moon.addEventListener('click', function () {
+    nodeGarden.toggleNightMode();
+  });
   window.addEventListener('resize', function () {
     nodeGarden.resize();
   });
-
-  function switchNightMode() {
-    nodeGarden.nightMode = !nodeGarden.nightMode;
-    if (nodeGarden.nightMode) {
-      document.body.classList.add('nightmode');
-    } else {
-      document.body.classList.remove('nightmode');
-    }
-  }
 })();

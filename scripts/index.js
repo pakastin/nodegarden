@@ -5,14 +5,14 @@ var $container = document.getElementById('container')
 var $moon = document.getElementsByClassName('moon')[0]
 
 var nodeGarden = new NodeGarden($container)
-var date = new Date()
 
 // start simulation
 nodeGarden.start()
 
 // trigger nightMode automatically
+var date = new Date()
 if (date.getHours() > 18 || date.getHours() < 6) {
-  switchNightMode()
+  nodeGarden.toggleNightMode()
 }
 
 var resetNode = -1
@@ -24,14 +24,6 @@ $container.addEventListener('click', function (e) {
   }
   nodeGarden.nodes[resetNode].reset({x: e.pageX, y: e.pageY, vx: 0, vy: 0})
 })
-$moon.addEventListener('click', switchNightMode)
-window.addEventListener('resize', () => { nodeGarden.resize() })
 
-function switchNightMode () {
-  nodeGarden.nightMode = !nodeGarden.nightMode
-  if (nodeGarden.nightMode) {
-    document.body.classList.add('nightmode')
-  } else {
-    document.body.classList.remove('nightmode')
-  }
-}
+$moon.addEventListener('click', () => { nodeGarden.toggleNightMode() })
+window.addEventListener('resize', () => { nodeGarden.resize() })

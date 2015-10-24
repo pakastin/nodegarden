@@ -8,7 +8,7 @@ export default function NodeGarden (container) {
   this.container = container
   this.canvas = document.createElement('canvas')
   this.ctx = this.canvas.getContext('2d')
-  this.nightMode = false
+  this.ctx.fillStyle = '#000000'
   this.started = false
 
   if (pixelRatio !== 1) {
@@ -16,6 +16,9 @@ export default function NodeGarden (container) {
     this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')'
     this.canvas.style.transformOrigin = '0 0'
   }
+  this.canvas.style.position = 'absolute'
+  this.canvas.style.width = '100%'
+  this.canvas.style.height = '100%'
   this.canvas.id = 'nodegarden'
   this.resize()
   this.container.appendChild(this.canvas)
@@ -47,7 +50,7 @@ NodeGarden.prototype.resize = function () {
   this.canvas.height = this.height
 
   // create nodes
-  for (var i = 0, len = this.nodes.length; i < len; i++) {
+  for (var i = 0; i < this.nodes.length; i++) {
     if (this.nodes[i]) {
       continue
     }
@@ -55,13 +58,20 @@ NodeGarden.prototype.resize = function () {
   }
 }
 
-NodeGarden.prototype.render = function (start) {
-  var distance
-  var direction
-  var force
-  var node, nodeA, nodeB
-  var i, j, len
+NodeGarden.prototype.isNightMode = function () {
+  return document.body.classList.contains('nightmode')
+}
 
+NodeGarden.prototype.toggleNightMode = function () {
+  document.body.classList.toggle('nightmode')
+  if (this.isNightMode()) {
+    this.ctx.fillStyle = '#ffffff'
+  } else {
+    this.ctx.fillStyle = '#000000'
+  }
+}
+
+NodeGarden.prototype.render = function (start) {
   if (!this.playing) {
     return
   }
@@ -76,43 +86,43 @@ NodeGarden.prototype.render = function (start) {
   this.ctx.clearRect(0, 0, this.width, this.height)
 
   // update links
-  for (i = 0, len = this.nodes.length - 1; i < len; i++) {
-    for (j = i + 1; j < len + 1; j++) {
-      nodeA = this.nodes[i]
+  var node, nodeA, nodeB
+  for (let i = 0; i < this.nodes.length - 1; i++) {
+    nodeA = this.nodes[i]
+    for (let j = i + 1; j < this.nodes.length; j++) {
       nodeB = this.nodes[j]
-
-      distance = nodeA.distanceTo(nodeB)
-
-      if (distance.total <= nodeA.m / 2 + nodeB.m / 2) {
-        // collision: remove smaller or equal - never both of them
-        if (nodeA.m <= nodeB.m) {
-          nodeA.collideTo(nodeB)
-          continue
-        }
-        if (nodeB.m <= nodeA.m) {
-          nodeB.collideTo(nodeA)
-          continue
-        }
-      }
-
-      // calculate gravity direction
-      direction = {
-        x: distance.x / distance.total,
-        y: distance.y / distance.total
-      }
+      let squaredDistance = nodeA.squaredDistanceTo(nodeB)
 
       // calculate gravity force
-      force = 3 * (nodeA.m * nodeB.m) / Math.pow(distance.total, 2)
+      let force = 3 * (nodeA.m * nodeB.m) / squaredDistance
 
-      var opacity = force * 100
+      let opacity = force * 100
 
       if (opacity < 0.05) {
         continue
       }
 
+      if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
+        // collision: remove smaller or equal - never both of them
+        if (nodeA.m <= nodeB.m) {
+          nodeA.collideTo(nodeB)
+        } else {
+          nodeB.collideTo(nodeA)
+        }
+        continue
+      }
+
+      let distance = nodeA.distanceTo(nodeB)
+
+      // calculate gravity direction
+      let direction = {
+        x: distance.x / distance.total,
+        y: distance.y / distance.total
+      }
+
       // draw gravity lines
       this.ctx.beginPath()
-      if (this.nightMode) {
+      if (this.isNightMode()) {
         this.ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')'
       } else {
         this.ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')'
@@ -125,13 +135,8 @@ NodeGarden.prototype.render = function (start) {
       nodeB.addForce(-force, direction)
     }
   }
-  if (this.nightMode) {
-    this.ctx.fillStyle = '#ffffff'
-  } else {
-    this.ctx.fillStyle = '#000000'
-  }
   // update nodes
-  for (i = 0, len = this.nodes.length; i < len; i++) {
+  for (let i = 0; i < this.nodes.length; i++) {
     node = this.nodes[i]
     this.ctx.beginPath()
     this.ctx.arc(node.x, node.y, node.m, 0, 2 * Math.PI)
