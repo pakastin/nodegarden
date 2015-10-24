@@ -41,6 +41,16 @@
     return { x: x, y: y, total: total };
   };
 
+  Node.prototype.update = function () {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x > this.garden.width + 50 || this.x < -50 || this.y > this.garden.height + 50 || this.y < -50) {
+      // if node over screen limits - reset to a init position
+      this.reset();
+    }
+  };
+
   Node.prototype.squaredDistanceTo = function (node) {
     return (node.x - this.x) * (node.x - this.x) + (node.y - this.y) * (node.y - this.y);
   };
@@ -50,6 +60,16 @@
     node.vy = node.m * node.vy / (this.m + node.m) + this.m * this.vy / (this.m + node.m);
 
     this.reset();
+  };
+
+  Node.prototype.render = function () {
+    this.garden.ctx.beginPath();
+    this.garden.ctx.arc(this.x, this.y, this.getDiameter(), 0, 2 * Math.PI);
+    this.garden.ctx.fill();
+  };
+
+  Node.prototype.getDiameter = function () {
+    return this.m;
   };
 
   var pixelRatio = window.devicePixelRatio;
@@ -71,6 +91,34 @@
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
     this.canvas.id = 'nodegarden';
+
+    //Add mouse node
+    var mouseNode = new Node(this);
+    mouseNode.m = 15;
+
+    mouseNode.getDiameter = function () {
+      return 0.1;
+    };
+
+    mouseNode.update = function () {};
+    mouseNode.reset = function () {};
+    mouseNode.render = function () {};
+    //Move coordinates to unreachable zone
+    mouseNode.x = Number.MAX_SAFE_INTEGER;
+    mouseNode.y = Number.MAX_SAFE_INTEGER;
+
+    document.addEventListener('mousemove', function (e) {
+      mouseNode.x = e.pageX;
+      mouseNode.y = e.pageY;
+    });
+
+    document.documentElement.addEventListener('mouseleave', function (e) {
+      mouseNode.x = Number.MAX_SAFE_INTEGER;
+      mouseNode.y = Number.MAX_SAFE_INTEGER;
+    });
+
+    this.nodes.push(mouseNode);
+
     this.resize();
     this.container.appendChild(this.canvas);
   }
@@ -94,18 +142,18 @@
     this.area = this.width * this.height;
 
     // calculate nodes needed
-    this.nodes.length = Math.sqrt(this.area) / 25 | 0;
-
+    var needed = (Math.sqrt(this.area) / 25 | 0) - this.nodes.length;
     // set canvas size
     this.canvas.width = this.width;
     this.canvas.height = this.height;
 
+    if (needed < 0) {
+      return;
+    }
+
     // create nodes
-    for (var i = 0; i < this.nodes.length; i++) {
-      if (this.nodes[i]) {
-        continue;
-      }
-      this.nodes[i] = new Node(this);
+    for (var i = 0; i < needed; i++) {
+      this.nodes.push(new Node(this));
     }
   };
 
@@ -139,7 +187,7 @@
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     // update links
-    var node, nodeA, nodeB;
+    var nodeA, nodeB;
     for (var i = 0; i < this.nodes.length - 1; i++) {
       nodeA = this.nodes[i];
       for (var j = i + 1; j < this.nodes.length; j++) {
@@ -155,7 +203,7 @@
           continue;
         }
 
-        if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
+        if (squaredDistance <= (nodeA.getDiameter() / 2 + nodeB.getDiameter() / 2) * (nodeA.getDiameter() / 2 + nodeB.getDiameter() / 2)) {
           // collision: remove smaller or equal - never both of them
           if (nodeA.m <= nodeB.m) {
             nodeA.collideTo(nodeB);
@@ -188,20 +236,10 @@
         nodeB.addForce(-force, direction);
       }
     }
-    // update nodes
+    // render and update nodes
     for (var i = 0; i < this.nodes.length; i++) {
-      node = this.nodes[i];
-      this.ctx.beginPath();
-      this.ctx.arc(node.x, node.y, node.m, 0, 2 * Math.PI);
-      this.ctx.fill();
-
-      node.x += node.vx;
-      node.y += node.vy;
-
-      if (node.x > this.width + 25 || node.x < -25 || node.y > this.height + 25 || node.y < -25) {
-        // if node over screen limits - reset to a init position
-        node.reset();
-      }
+      this.nodes[i].render();
+      this.nodes[i].update();
     }
   };
 
@@ -219,14 +257,12 @@
     nodeGarden.toggleNightMode();
   }
 
-  var resetNode = -1;
-
   $container.addEventListener('click', function (e) {
-    resetNode++;
-    if (resetNode > nodeGarden.nodes.length - 1) {
-      resetNode = 0;
-    }
-    nodeGarden.nodes[resetNode].reset({ x: e.pageX, y: e.pageY, vx: 0, vy: 0 });
+    var node = new Node(nodeGarden);
+    var angle = Math.random() * 2 * Math.PI;
+    node.reset({ x: e.pageX + 100 * Math.cos(angle), y: e.pageY + 100 * Math.sin(angle) });
+    nodeGarden.nodes.push(node);
+    console.log(nodeGarden.nodes.length);
   });
 
   $moon.addEventListener('click', function () {

@@ -20,6 +20,34 @@ export default function NodeGarden (container) {
   this.canvas.style.width = '100%'
   this.canvas.style.height = '100%'
   this.canvas.id = 'nodegarden'
+
+  //Add mouse node
+  var mouseNode = new Node(this);
+  mouseNode.m = 15
+
+  mouseNode.getDiameter = function () {
+    return 0.1
+  }
+
+  mouseNode.update = function () {}
+  mouseNode.reset = function () {}
+  mouseNode.render = function () {}
+  //Move coordinates to unreachable zone
+  mouseNode.x = Number.MAX_SAFE_INTEGER
+  mouseNode.y = Number.MAX_SAFE_INTEGER
+
+  document.addEventListener('mousemove', (e)=>{
+    mouseNode.x = e.pageX
+    mouseNode.y = e.pageY
+  });
+
+  document.documentElement.addEventListener('mouseleave', (e)=>{
+    mouseNode.x = Number.MAX_SAFE_INTEGER
+    mouseNode.y = Number.MAX_SAFE_INTEGER
+  });
+
+  this.nodes.push(mouseNode)
+
   this.resize()
   this.container.appendChild(this.canvas)
 }
@@ -43,18 +71,18 @@ NodeGarden.prototype.resize = function () {
   this.area = this.width * this.height
 
   // calculate nodes needed
-  this.nodes.length = Math.sqrt(this.area) / 25 | 0
-
+  var needed = (Math.sqrt(this.area) / 25 | 0) - this.nodes.length
   // set canvas size
   this.canvas.width = this.width
   this.canvas.height = this.height
 
+  if (needed < 0) {
+    return
+  }
+
   // create nodes
-  for (var i = 0; i < this.nodes.length; i++) {
-    if (this.nodes[i]) {
-      continue
-    }
-    this.nodes[i] = new Node(this)
+  for (var i = 0; i < needed; i++) {
+    this.nodes.push(new Node(this));
   }
 }
 
@@ -86,7 +114,7 @@ NodeGarden.prototype.render = function (start) {
   this.ctx.clearRect(0, 0, this.width, this.height)
 
   // update links
-  var node, nodeA, nodeB
+  var nodeA, nodeB
   for (let i = 0; i < this.nodes.length - 1; i++) {
     nodeA = this.nodes[i]
     for (let j = i + 1; j < this.nodes.length; j++) {
@@ -102,7 +130,7 @@ NodeGarden.prototype.render = function (start) {
         continue
       }
 
-      if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
+      if (squaredDistance <= (nodeA.getDiameter() / 2 + nodeB.getDiameter() / 2) * (nodeA.getDiameter() / 2 + nodeB.getDiameter() / 2)) {
         // collision: remove smaller or equal - never both of them
         if (nodeA.m <= nodeB.m) {
           nodeA.collideTo(nodeB)
@@ -135,19 +163,9 @@ NodeGarden.prototype.render = function (start) {
       nodeB.addForce(-force, direction)
     }
   }
-  // update nodes
+  // render and update nodes
   for (let i = 0; i < this.nodes.length; i++) {
-    node = this.nodes[i]
-    this.ctx.beginPath()
-    this.ctx.arc(node.x, node.y, node.m, 0, 2 * Math.PI)
-    this.ctx.fill()
-
-    node.x += node.vx
-    node.y += node.vy
-
-    if (node.x > this.width + 25 || node.x < -25 || node.y > this.height + 25 || node.y < -25) {
-      // if node over screen limits - reset to a init position
-      node.reset()
-    }
+    this.nodes[i].render();
+    this.nodes[i].update();
   }
 }

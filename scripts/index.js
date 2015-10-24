@@ -1,4 +1,4 @@
-
+import Node from './node'
 import NodeGarden from './nodegarden'
 
 var $container = document.getElementById('container')
@@ -15,14 +15,12 @@ if (date.getHours() > 18 || date.getHours() < 6) {
   nodeGarden.toggleNightMode()
 }
 
-var resetNode = -1
-
 $container.addEventListener('click', function (e) {
-  resetNode++
-  if (resetNode > nodeGarden.nodes.length - 1) {
-    resetNode = 0
-  }
-  nodeGarden.nodes[resetNode].reset({x: e.pageX, y: e.pageY, vx: 0, vy: 0})
+  let node = new Node(nodeGarden)
+  let angle = Math.random()*2*Math.PI
+  node.reset({x: e.pageX + 100*Math.cos(angle), y: e.pageY + 100*Math.sin(angle)})
+  nodeGarden.nodes.push(node)
+  console.log(nodeGarden.nodes.length)
 })
 
 $moon.addEventListener('click', () => { nodeGarden.toggleNightMode() })
