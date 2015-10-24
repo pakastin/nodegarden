@@ -52,7 +52,7 @@
     this.reset();
   };
 
-  var pixelRatio = window.devicePixelRatio;
+  var pixelRatio$1 = window.devicePixelRatio;
 
   function NodeGarden(container) {
     this.nodes = [];
@@ -62,14 +62,11 @@
     this.ctx.fillStyle = '#000000';
     this.started = false;
 
-    if (pixelRatio !== 1) {
+    if (pixelRatio$1 !== 1) {
       // if retina screen, scale canvas
-      this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')';
+      this.canvas.style.transform = 'scale(' + 1 / pixelRatio$1 + ')';
       this.canvas.style.transformOrigin = '0 0';
     }
-    this.canvas.style.position = 'absolute';
-    this.canvas.style.width = '100%';
-    this.canvas.style.height = '100%';
     this.canvas.id = 'nodegarden';
     this.resize();
     this.container.appendChild(this.canvas);
@@ -89,8 +86,8 @@
   };
 
   NodeGarden.prototype.resize = function () {
-    this.width = window.innerWidth * pixelRatio;
-    this.height = window.innerHeight * pixelRatio;
+    this.width = window.innerWidth * pixelRatio$1;
+    this.height = window.innerHeight * pixelRatio$1;
     this.area = this.width * this.height;
 
     // calculate nodes needed
@@ -205,6 +202,7 @@
     }
   };
 
+  var pixelRatio = window.devicePixelRatio;
   var $container = document.getElementById('container');
   var $moon = document.getElementsByClassName('moon')[0];
 
@@ -226,7 +224,7 @@
     if (resetNode > nodeGarden.nodes.length - 1) {
       resetNode = 0;
     }
-    nodeGarden.nodes[resetNode].reset({ x: e.pageX, y: e.pageY, vx: 0, vy: 0 });
+    nodeGarden.nodes[resetNode].reset({ x: e.pageX * pixelRatio, y: e.pageY * pixelRatio, vx: 0, vy: 0 });
   });
 
   $moon.addEventListener('click', function () {
