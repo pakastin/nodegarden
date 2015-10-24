@@ -112,8 +112,6 @@ NodeGarden.prototype.render = function (start) {
         continue
       }
 
-
-
       let distance = nodeA.distanceTo(nodeB)
 
       // calculate gravity direction
