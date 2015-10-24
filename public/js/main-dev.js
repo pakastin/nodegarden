@@ -184,8 +184,8 @@
         this.ctx.lineTo(nodeB.x, nodeB.y);
         this.ctx.stroke();
 
-        nodeA.addForce(force, direction);
-        nodeB.addForce(-force, direction);
+        nodeA.addForce(charge * force, direction);
+        nodeB.addForce(charge * -force, direction);
       }
     }
     // update nodes
