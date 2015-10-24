@@ -8,8 +8,20 @@ export default function NodeGarden (container) {
   this.container = container
   this.canvas = document.createElement('canvas')
   this.ctx = this.canvas.getContext('2d')
-  this.ctx.fillStyle = '#000000'
   this.started = false
+  this.nightmode = false
+
+  window.addEventListener('keydown', (e) => {
+    if (e.which === 16) {
+      mouseNode.m = 15
+    }
+  })
+
+  window.addEventListener('keyup', (e) => {
+    if (e.which === 16) {
+      mouseNode.m = 0
+    }
+  })
 
   if (pixelRatio !== 1) {
     // if retina screen, scale canvas
@@ -17,6 +29,30 @@ export default function NodeGarden (container) {
     this.canvas.style.transformOrigin = '0 0'
   }
   this.canvas.id = 'nodegarden'
+
+  // Add mouse node
+  var mouseNode = new Node(this)
+  mouseNode.m = 0
+
+  mouseNode.update = function () {}
+  mouseNode.reset = function () {}
+  mouseNode.render = function () {}
+  // Move coordinates to unreachable zone
+  mouseNode.x = Number.MAX_SAFE_INTEGER
+  mouseNode.y = Number.MAX_SAFE_INTEGER
+
+  document.addEventListener('mousemove', (e) => {
+    mouseNode.x = e.pageX
+    mouseNode.y = e.pageY
+  })
+
+  document.documentElement.addEventListener('mouseleave', (e) => {
+    mouseNode.x = Number.MAX_SAFE_INTEGER
+    mouseNode.y = Number.MAX_SAFE_INTEGER
+  })
+
+  this.nodes.unshift(mouseNode)
+
   this.resize()
   this.container.appendChild(this.canvas)
 }
@@ -46,6 +82,12 @@ NodeGarden.prototype.resize = function () {
   this.canvas.width = this.width
   this.canvas.height = this.height
 
+  if (this.nightMode) {
+    this.ctx.fillStyle = '#ffffff'
+  } else {
+    this.ctx.fillStyle = '#000000'
+  }
+
   // create nodes
   for (var i = 0; i < this.nodes.length; i++) {
     if (this.nodes[i]) {
@@ -55,16 +97,14 @@ NodeGarden.prototype.resize = function () {
   }
 }
 
-NodeGarden.prototype.isNightMode = function () {
-  return document.body.classList.contains('nightmode')
-}
-
 NodeGarden.prototype.toggleNightMode = function () {
-  document.body.classList.toggle('nightmode')
-  if (this.isNightMode()) {
+  this.nightMode = !this.nightMode
+  if (this.nightMode) {
     this.ctx.fillStyle = '#ffffff'
+    document.body.classList.add('nightmode')
   } else {
     this.ctx.fillStyle = '#000000'
+    document.body.classList.remove('nightmode')
   }
 }
 
@@ -83,17 +123,17 @@ NodeGarden.prototype.render = function (start) {
   this.ctx.clearRect(0, 0, this.width, this.height)
 
   // update links
-  var node, nodeA, nodeB
-  for (let i = 0; i < this.nodes.length - 1; i++) {
+  var nodeA, nodeB
+  for (var i = 0; i < this.nodes.length - 1; i++) {
     nodeA = this.nodes[i]
-    for (let j = i + 1; j < this.nodes.length; j++) {
+    for (var j = i + 1; j < this.nodes.length; j++) {
       nodeB = this.nodes[j]
-      let squaredDistance = nodeA.squaredDistanceTo(nodeB)
+      var squaredDistance = nodeA.squaredDistanceTo(nodeB)
 
       // calculate gravity force
-      let force = 3 * (nodeA.m * nodeB.m) / squaredDistance
+      var force = 3 * (nodeA.m * nodeB.m) / squaredDistance
 
-      let opacity = force * 100
+      var opacity = force * 100
 
       if (opacity < 0.05) {
         continue
@@ -109,17 +149,17 @@ NodeGarden.prototype.render = function (start) {
         continue
       }
 
-      let distance = nodeA.distanceTo(nodeB)
+      var distance = nodeA.distanceTo(nodeB)
 
       // calculate gravity direction
-      let direction = {
+      var direction = {
         x: distance.x / distance.total,
         y: distance.y / distance.total
       }
 
       // draw gravity lines
       this.ctx.beginPath()
-      if (this.isNightMode()) {
+      if (this.nightMode) {
         this.ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')'
       } else {
         this.ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')'
@@ -132,19 +172,9 @@ NodeGarden.prototype.render = function (start) {
       nodeB.addForce(-force, direction)
     }
   }
-  // update nodes
-  for (let i = 0; i < this.nodes.length; i++) {
-    node = this.nodes[i]
-    this.ctx.beginPath()
-    this.ctx.arc(node.x, node.y, node.m, 0, 2 * Math.PI)
-    this.ctx.fill()
-
-    node.x += node.vx
-    node.y += node.vy
-
-    if (node.x > this.width + 25 || node.x < -25 || node.y > this.height + 25 || node.y < -25) {
-      // if node over screen limits - reset to a init position
-      node.reset()
-    }
+  // render and update nodes
+  for (i = 0; i < this.nodes.length; i++) {
+    this.nodes[i].render()
+    this.nodes[i].update()
   }
 }

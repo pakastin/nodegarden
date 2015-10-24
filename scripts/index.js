@@ -16,12 +16,12 @@ if (date.getHours() > 18 || date.getHours() < 6) {
   nodeGarden.toggleNightMode()
 }
 
-var resetNode = -1
+var resetNode = 0
 
-$container.addEventListener('click', function (e) {
+$container.addEventListener('mousedown', function (e) {
   resetNode++
   if (resetNode > nodeGarden.nodes.length - 1) {
-    resetNode = 0
+    resetNode = 1
   }
   nodeGarden.nodes[resetNode].reset({x: e.pageX * pixelRatio, y: e.pageY * pixelRatio, vx: 0, vy: 0})
 })
