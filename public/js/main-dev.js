@@ -82,16 +82,12 @@
     this.started = false;
     this.nightmode = false;
 
-    window.addEventListener('keydown', function (e) {
-      if (e.which === 16) {
-        mouseNode.m = 15;
-      }
+    window.addEventListener('mousedown', function (e) {
+      mouseNode.m = 15;
     });
 
-    window.addEventListener('keyup', function (e) {
-      if (e.which === 16) {
-        mouseNode.m = 0;
-      }
+    window.addEventListener('mouseup', function (e) {
+      mouseNode.m = 0;
     });
 
     if (pixelRatio$1 !== 1) {
@@ -269,7 +265,7 @@
 
   var resetNode = 0;
 
-  $container.addEventListener('mousedown', function (e) {
+  $container.addEventListener('click', function (e) {
     resetNode++;
     if (resetNode > nodeGarden.nodes.length - 1) {
       resetNode = 1;

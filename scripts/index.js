@@ -18,7 +18,7 @@ if (date.getHours() > 18 || date.getHours() < 6) {
 
 var resetNode = 0
 
-$container.addEventListener('mousedown', function (e) {
+$container.addEventListener('click', function (e) {
   resetNode++
   if (resetNode > nodeGarden.nodes.length - 1) {
     resetNode = 1

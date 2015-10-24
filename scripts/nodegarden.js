@@ -11,16 +11,12 @@ export default function NodeGarden (container) {
   this.started = false
   this.nightmode = false
 
-  window.addEventListener('keydown', (e) => {
-    if (e.which === 16) {
-      mouseNode.m = 15
-    }
+  window.addEventListener('mousedown', (e) => {
+    mouseNode.m = 15
   })
 
-  window.addEventListener('keyup', (e) => {
-    if (e.which === 16) {
-      mouseNode.m = 0
-    }
+  window.addEventListener('mouseup', (e) => {
+    mouseNode.m = 0
   })
 
   if (pixelRatio !== 1) {
