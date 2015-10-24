@@ -28,6 +28,10 @@ Node.prototype.distanceTo = function (node) {
   return {x, y, total}
 }
 
+Node.prototype.squaredDistanceTo = function (node) {
+  return (node.x - this.x) * (node.x - this.x) + (node.y - this.y) * (node.y - this.y)
+}
+
 Node.prototype.collideTo = function (node) {
   node.vx = node.m * node.vx / (this.m + node.m) + this.m * this.vx / (this.m + node.m)
   node.vy = node.m * node.vy / (this.m + node.m) + this.m * this.vy / (this.m + node.m)
