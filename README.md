@@ -32,7 +32,7 @@ https://nodegarden.js.org/electrons.html
 My other projects:
 
 - [HTML5 Deck of Cards](https://deck-of-cards.js.org)
-- [FRZR](https://frzr.js.org)
+- [FRZR](https://frzr.js.org) view library
 
 ## Development
 
