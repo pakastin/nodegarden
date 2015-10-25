@@ -131,7 +131,7 @@ NodeGarden.prototype.render = function (start) {
 
       var opacity = force * 100
 
-      if (opacity < 0.05) {
+      if (opacity < 0.025) {
         continue
       }
 

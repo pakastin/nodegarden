@@ -9,8 +9,8 @@ export default function Node (garden) {
 Node.prototype.reset = function ({x, y, vx, vy, m} = {}) {
   this.x = defined(x, Math.random() * this.garden.width)
   this.y = defined(y, Math.random() * this.garden.height)
-  this.vx = defined(vx, Math.random() * 1 - 0.5)
-  this.vy = defined(vy, Math.random() * 1 - 0.5)
+  this.vx = defined(vx, Math.random() * 0.5 - 0.25)
+  this.vy = defined(vy, Math.random() * 0.5 - 0.25)
   this.m = defined(m, Math.random() * 2.5 + 0.5)
 }
 
