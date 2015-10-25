@@ -7,6 +7,7 @@ Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, ju
 - Click to add nodes
 - Drag to make mouse a "black hole"
 
+Rules:
 
 - Circles represent nodes
 - Node's mass is proportional to it's size
