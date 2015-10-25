@@ -25,7 +25,7 @@
     this.y = defined(y, Math.random() * this.garden.height);
     this.vx = defined(vx, Math.random() * 1 - 0.5);
     this.vy = defined(vy, Math.random() * 1 - 0.5);
-    this.m = defined(m, Math.random() * 2.5 + 1);
+    this.m = defined(m, Math.random() * 2.5 + 0.5);
     this.pos = Math.random() >= 0.5;
   };
 
