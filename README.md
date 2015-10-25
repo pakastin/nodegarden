@@ -35,7 +35,7 @@ My other projects: https://deck-of-cards.js.org and https://frzr.js.org
 
 Download/clone and then:
 
-```js
+```
 npm install
 npm start
 ```
