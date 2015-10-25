@@ -30,8 +30,9 @@ https://nodegarden.js.org/electrons.html
 ## Also check out
 
 My other projects:
-• [HTML5 Deck of Cards](https://deck-of-cards.js.org)
-• [FRZR](https://frzr.js.org)
+
+- [HTML5 Deck of Cards](https://deck-of-cards.js.org)
+- [FRZR](https://frzr.js.org)
 
 ## Development
 
