@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel": "^5.8.29",
     "chokidar": "^1.2.0",
     "jade": "^1.11.0",
     "nib": "^1.1.0",
