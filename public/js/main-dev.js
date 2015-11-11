@@ -109,8 +109,8 @@
     mouseNode.y = Number.MAX_SAFE_INTEGER;
 
     document.addEventListener('mousemove', function (e) {
-      mouseNode.x = e.pageX;
-      mouseNode.y = e.pageY;
+      mouseNode.x = e.pageX * pixelRatio$1;
+      mouseNode.y = e.pageY * pixelRatio$1;
     });
 
     document.documentElement.addEventListener('mouseleave', function (e) {

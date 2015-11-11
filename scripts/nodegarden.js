@@ -38,8 +38,8 @@ export default function NodeGarden (container) {
   mouseNode.y = Number.MAX_SAFE_INTEGER
 
   document.addEventListener('mousemove', (e) => {
-    mouseNode.x = e.pageX
-    mouseNode.y = e.pageY
+    mouseNode.x = e.pageX * pixelRatio
+    mouseNode.y = e.pageY * pixelRatio
   })
 
   document.documentElement.addEventListener('mouseleave', (e) => {
