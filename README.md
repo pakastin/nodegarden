@@ -44,3 +44,6 @@ npm start
 ```
 
 Starts listening file changes and builds automagically to ```/public``` folder
+
+## License
+MIT
