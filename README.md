@@ -4,7 +4,7 @@ https://nodegarden.js.org
 
 ## Description
 
-Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, just simple physics. I used to do these back in the Flash times, when I worked as a Flash developer. BIT-101 released [a great article](http://www.bit-101.com/tutorials/nodes.doc) back then, which got me inspired.
+Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, just simple physics. I used to do these back in the Flash times, when I worked as a Flash developer. [BIT-101](https://github.com/bit101) released [a great article](http://www.bit-101.com/tutorials/nodes.doc) back then, which got me inspired.
 
 - Click to add nodes
 - Drag to make mouse a "black hole"
