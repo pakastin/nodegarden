@@ -1,30 +1,42 @@
 
-import NodeGarden from './nodegarden'
+import NodeGarden from './nodegarden';
 
-var pixelRatio = window.devicePixelRatio
-var $container = document.getElementById('container')
-var $moon = document.getElementsByClassName('moon')[0]
+const pixelRatio = window.devicePixelRatio;
+const $container = document.getElementById('container');
+const $moon = document.getElementsByClassName('moon')[0];
 
-var nodeGarden = new NodeGarden($container)
+const nodeGarden = new NodeGarden($container);
 
 // start simulation
-nodeGarden.start()
+nodeGarden.start();
 
 // trigger nightMode automatically
-var date = new Date()
+const date = new Date();
+
 if (date.getHours() > 18 || date.getHours() < 6) {
-  nodeGarden.toggleNightMode()
+  nodeGarden.toggleNightMode();
 }
 
-var resetNode = 0
+let resetNode = 0;
 
-$container.addEventListener('click', function (e) {
-  resetNode++
+$container.addEventListener('click', (e) => {
+  const bcr = $container.getBoundingClientRect();
+  resetNode++;
   if (resetNode > nodeGarden.nodes.length - 1) {
-    resetNode = 1
+    resetNode = 1;
   }
-  nodeGarden.nodes[resetNode].reset({x: e.pageX * pixelRatio, y: e.pageY * pixelRatio, vx: 0, vy: 0})
-})
+  nodeGarden.nodes[resetNode].reset({
+    x: (e.pageX - bcr.left) * pixelRatio,
+    y: (e.pageY - bcr.top) * pixelRatio,
+    vx: 0,
+    vy: 0
+  });
+});
 
-$moon.addEventListener('click', () => { nodeGarden.toggleNightMode() })
-window.addEventListener('resize', () => { nodeGarden.resize() })
+$moon.addEventListener('click', () => {
+  nodeGarden.toggleNightMode();
+});
+
+window.addEventListener('resize', () => {
+  nodeGarden.resize();
+});
