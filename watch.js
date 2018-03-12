@@ -1,29 +1,22 @@
 
-var cp = require('child_process')
+var cp = require('child_process');
 
-var chokidar = require('chokidar')
+var chokidar = require('chokidar');
 
-watch('css/**/*.styl', 'npm run build-css')
-watch('scripts/**/*.js', 'npm run build-js')
-watch('views/**/*.jade', 'npm run build-html')
+watch('css/**/*.styl', 'build-css');
+watch('scripts/**/*.js', 'build-js');
+watch('public/js/main-dev.js', 'uglify-js');
+watch('views/**/*.jade', 'build-html');
 
-function watch (path, cmd, cb) {
+function watch (path, cmd) {
+  run(cmd);
   chokidar.watch(path)
-    .on('change', execCurry(cmd, cb))
+    .on('change', () => run(cmd));
 }
 
-function execCurry (cmd, cb) {
-  return function () {
-    exec(cmd, cb)
-  }
-}
+function run (cmd) {
+  const child = cp.spawn('npm', ['run', cmd]);
 
-function exec (cmd, cb) {
-  cp.exec(cmd, function (err, stdout, stderr) {
-    err && console.error(err)
-    stdout && console.log(stdout)
-    stderr && console.error(stderr)
-
-    cb && cb(err, stdout, stderr)
-  })
+  child.stdout.pipe(process.stdout);
+  child.stderr.pipe(process.stderr);
 }
