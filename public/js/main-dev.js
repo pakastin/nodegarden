@@ -92,11 +92,16 @@ var NodeGarden = function NodeGarden (container) {
   this.canvas.id = 'nodegarden';
 
   window.addEventListener('mousedown', function (e) {
+    e.preventDefault();
     var bcr = container.getBoundingClientRect();
+    var scrollPos = {
+      x: window.scrollX,
+      y: window.scrollY
+    };
     // Add mouse node
     var mouseNode = new Node(this$1);
-    mouseNode.x = (e.pageX - bcr.left) * devicePixelRatio;
-    mouseNode.y = (e.pageY - bcr.top) * devicePixelRatio;
+    mouseNode.x = (e.pageX - scrollPos.x - bcr.left) * devicePixelRatio;
+    mouseNode.y = (e.pageY - scrollPos.y - bcr.top) * devicePixelRatio;
     mouseNode.m = 15;
 
     mouseNode.update = function () {};
@@ -106,8 +111,8 @@ var NodeGarden = function NodeGarden (container) {
     this$1.nodes.unshift(mouseNode);
 
     window.addEventListener('mousemove', function (e) {
-      mouseNode.x = (e.pageX - bcr.left) * devicePixelRatio;
-      mouseNode.y = (e.pageY - bcr.top) * devicePixelRatio;
+      mouseNode.x = (e.pageX - scrollPos.x - bcr.left) * devicePixelRatio;
+      mouseNode.y = (e.pageY - scrollPos.y - bcr.top) * devicePixelRatio;
     });
 
     window.addEventListener('mouseup', function (e) {
@@ -274,13 +279,17 @@ var resetNode = 0;
 
 $container.addEventListener('click', function (e) {
   var bcr = $container.getBoundingClientRect();
+  var scrollPos = {
+    x: window.scrollX,
+    y: window.scrollY
+  };
   resetNode++;
   if (resetNode > nodeGarden.nodes.length - 1) {
     resetNode = 1;
   }
   nodeGarden.nodes[resetNode].reset({
-    x: (e.pageX - bcr.left) * pixelRatio,
-    y: (e.pageY - bcr.top) * pixelRatio,
+    x: (e.pageX - scrollPos.x - bcr.left) * pixelRatio,
+    y: (e.pageY - scrollPos.y - bcr.top) * pixelRatio,
     vx: 0,
     vy: 0
   });
