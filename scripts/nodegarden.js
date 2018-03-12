@@ -20,11 +20,16 @@ export default class NodeGarden {
     this.canvas.id = 'nodegarden';
 
     window.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       const bcr = container.getBoundingClientRect();
+      const scrollPos = {
+        x: window.scrollX,
+        y: window.scrollY
+      };
       // Add mouse node
       const mouseNode = new Node(this);
-      mouseNode.x = (e.pageX - bcr.left) * devicePixelRatio;
-      mouseNode.y = (e.pageY - bcr.top) * devicePixelRatio;
+      mouseNode.x = (e.pageX - scrollPos.x - bcr.left) * devicePixelRatio;
+      mouseNode.y = (e.pageY - scrollPos.y - bcr.top) * devicePixelRatio;
       mouseNode.m = 15;
 
       mouseNode.update = () => {};
@@ -34,8 +39,8 @@ export default class NodeGarden {
       this.nodes.unshift(mouseNode);
 
       window.addEventListener('mousemove', (e) => {
-        mouseNode.x = (e.pageX - bcr.left) * devicePixelRatio;
-        mouseNode.y = (e.pageY - bcr.top) * devicePixelRatio;
+        mouseNode.x = (e.pageX - scrollPos.x - bcr.left) * devicePixelRatio;
+        mouseNode.y = (e.pageY - scrollPos.y - bcr.top) * devicePixelRatio;
       });
 
       window.addEventListener('mouseup', (e) => {

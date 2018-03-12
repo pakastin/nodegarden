@@ -21,13 +21,17 @@ let resetNode = 0;
 
 $container.addEventListener('click', (e) => {
   const bcr = $container.getBoundingClientRect();
+  const scrollPos = {
+    x: window.scrollX,
+    y: window.scrollY
+  };
   resetNode++;
   if (resetNode > nodeGarden.nodes.length - 1) {
     resetNode = 1;
   }
   nodeGarden.nodes[resetNode].reset({
-    x: (e.pageX - bcr.left) * pixelRatio,
-    y: (e.pageY - bcr.top) * pixelRatio,
+    x: (e.pageX - scrollPos.x - bcr.left) * pixelRatio,
+    y: (e.pageY - scrollPos.y - bcr.top) * pixelRatio,
     vx: 0,
     vy: 0
   });
