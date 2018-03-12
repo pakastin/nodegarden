@@ -1,176 +1,180 @@
 
-import Node from './node'
+import Node from './node';
 
-var pixelRatio = window.devicePixelRatio
+const { devicePixelRatio = 1, requestAnimationFrame } = window;
 
-export default function NodeGarden (container) {
-  this.nodes = []
-  this.container = container
-  this.canvas = document.createElement('canvas')
-  this.ctx = this.canvas.getContext('2d')
-  this.started = false
-  this.nightmode = false
+export default class NodeGarden {
+  constructor (container) {
+    this.nodes = [];
+    this.container = container;
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.started = false;
+    this.nightmode = false;
 
-  window.addEventListener('mousedown', (e) => {
-    mouseNode.m = 15
-  })
-
-  window.addEventListener('mouseup', (e) => {
-    mouseNode.m = 0
-  })
-
-  if (pixelRatio !== 1) {
-    // if retina screen, scale canvas
-    this.canvas.style.transform = 'scale(' + 1 / pixelRatio + ')'
-    this.canvas.style.transformOrigin = '0 0'
-  }
-  this.canvas.id = 'nodegarden'
-
-  // Add mouse node
-  var mouseNode = new Node(this)
-  mouseNode.m = 0
-
-  mouseNode.update = function () {}
-  mouseNode.reset = function () {}
-  mouseNode.render = function () {}
-  // Move coordinates to unreachable zone
-  mouseNode.x = Number.MAX_SAFE_INTEGER
-  mouseNode.y = Number.MAX_SAFE_INTEGER
-
-  document.addEventListener('mousemove', (e) => {
-    mouseNode.x = e.pageX * pixelRatio
-    mouseNode.y = e.pageY * pixelRatio
-  })
-
-  document.documentElement.addEventListener('mouseleave', (e) => {
-    mouseNode.x = Number.MAX_SAFE_INTEGER
-    mouseNode.y = Number.MAX_SAFE_INTEGER
-  })
-
-  this.nodes.unshift(mouseNode)
-
-  this.resize()
-  this.container.appendChild(this.canvas)
-}
-
-NodeGarden.prototype.start = function () {
-  if (!this.playing) {
-    this.playing = true
-    this.render(true)
-  }
-}
-
-NodeGarden.prototype.stop = function () {
-  if (this.playing) {
-    this.playing = false
-  }
-}
-
-NodeGarden.prototype.resize = function () {
-  this.width = window.innerWidth * pixelRatio
-  this.height = window.innerHeight * pixelRatio
-  this.area = this.width * this.height
-
-  // calculate nodes needed
-  this.nodes.length = Math.sqrt(this.area) / 25 | 0
-
-  // set canvas size
-  this.canvas.width = this.width
-  this.canvas.height = this.height
-
-  if (this.nightMode) {
-    this.ctx.fillStyle = '#ffffff'
-  } else {
-    this.ctx.fillStyle = '#000000'
-  }
-
-  // create nodes
-  for (var i = 0; i < this.nodes.length; i++) {
-    if (this.nodes[i]) {
-      continue
+    if (devicePixelRatio && (devicePixelRatio !== 1)) {
+      // if retina screen, scale canvas
+      this.canvas.style.transform = 'scale(' + 1 / devicePixelRatio + ')';
+      this.canvas.style.transformOrigin = '0 0';
     }
-    this.nodes[i] = new Node(this)
-  }
-}
+    this.canvas.id = 'nodegarden';
 
-NodeGarden.prototype.toggleNightMode = function () {
-  this.nightMode = !this.nightMode
-  if (this.nightMode) {
-    this.ctx.fillStyle = '#ffffff'
-    document.body.classList.add('nightmode')
-  } else {
-    this.ctx.fillStyle = '#000000'
-    document.body.classList.remove('nightmode')
-  }
-}
+    window.addEventListener('mousedown', (e) => {
+      const bcr = container.getBoundingClientRect();
+      // Add mouse node
+      const mouseNode = new Node(this);
+      mouseNode.x = (e.pageX - bcr.left) * devicePixelRatio;
+      mouseNode.y = (e.pageY - bcr.top) * devicePixelRatio;
+      mouseNode.m = 15;
 
-NodeGarden.prototype.render = function (start) {
-  if (!this.playing) {
-    return
-  }
+      mouseNode.update = () => {};
+      mouseNode.reset = () => {};
+      mouseNode.render = () => {};
 
-  if (start) {
-    requestAnimationFrame(() => {
-      this.render(true)
-    })
-  }
+      this.nodes.unshift(mouseNode);
 
-  // clear canvas
-  this.ctx.clearRect(0, 0, this.width, this.height)
+      window.addEventListener('mousemove', (e) => {
+        mouseNode.x = (e.pageX - bcr.left) * devicePixelRatio;
+        mouseNode.y = (e.pageY - bcr.top) * devicePixelRatio;
+      });
 
-  // update links
-  var nodeA, nodeB
-  for (var i = 0; i < this.nodes.length - 1; i++) {
-    nodeA = this.nodes[i]
-    for (var j = i + 1; j < this.nodes.length; j++) {
-      nodeB = this.nodes[j]
-      var squaredDistance = nodeA.squaredDistanceTo(nodeB)
-
-      // calculate gravity force
-      var force = 3 * (nodeA.m * nodeB.m) / squaredDistance
-
-      var opacity = force * 100
-
-      if (opacity < 0.025) {
-        continue
-      }
-
-      if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
-        // collision: remove smaller or equal - never both of them
-        if (nodeA.m <= nodeB.m) {
-          nodeA.collideTo(nodeB)
-        } else {
-          nodeB.collideTo(nodeA)
+      window.addEventListener('mouseup', (e) => {
+        for (let i = 0; i < this.nodes.length; i++) {
+          if (this.nodes[i] === mouseNode) {
+            this.nodes.splice(i--, 1);
+            break;
+          }
         }
-        continue
-      }
+      });
+    });
 
-      var distance = nodeA.distanceTo(nodeB)
+    this.container.appendChild(this.canvas);
+    this.resize();
+  }
 
-      // calculate gravity direction
-      var direction = {
-        x: distance.x / distance.total,
-        y: distance.y / distance.total
-      }
-
-      // draw gravity lines
-      this.ctx.beginPath()
-      if (this.nightMode) {
-        this.ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')'
-      } else {
-        this.ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')'
-      }
-      this.ctx.moveTo(nodeA.x, nodeA.y)
-      this.ctx.lineTo(nodeB.x, nodeB.y)
-      this.ctx.stroke()
-
-      nodeA.addForce(force, direction)
-      nodeB.addForce(-force, direction)
+  start () {
+    if (!this.playing) {
+      this.playing = true;
+      this.render(true);
     }
   }
-  // render and update nodes
-  for (i = 0; i < this.nodes.length; i++) {
-    this.nodes[i].render()
-    this.nodes[i].update()
+
+  stop () {
+    if (this.playing) {
+      this.playing = false;
+    }
+  }
+
+  resize () {
+    this.width = this.container.clientWidth * devicePixelRatio;
+    this.height = this.container.clientHeight * devicePixelRatio;
+    this.area = this.width * this.height;
+
+    // calculate nodes needed
+    this.nodes.length = Math.sqrt(this.area) / 25 | 0;
+
+    // set canvas size
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+
+    if (this.nightMode) {
+      this.ctx.fillStyle = '#ffffff';
+    } else {
+      this.ctx.fillStyle = '#000000';
+    }
+
+    // create nodes
+    for (let i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i]) {
+        continue;
+      }
+      this.nodes[i] = new Node(this);
+    }
+  }
+
+  toggleNightMode () {
+    this.nightMode = !this.nightMode;
+    if (this.nightMode) {
+      this.ctx.fillStyle = '#ffffff';
+      document.body.classList.add('nightmode');
+    } else {
+      this.ctx.fillStyle = '#000000';
+      document.body.classList.remove('nightmode');
+    }
+  }
+
+  render (start, time) {
+    if (!this.playing) {
+      return;
+    }
+
+    if (start) {
+      requestAnimationFrame((time) => {
+        this.render(true, time);
+      });
+    }
+
+    const deltaTime = time - (this.lastTime || time);
+
+    this.lastTime = time;
+
+    // clear canvas
+    this.ctx.clearRect(0, 0, this.width, this.height);
+
+    // update links
+    for (let i = 0; i < this.nodes.length - 1; i++) {
+      const nodeA = this.nodes[i];
+      for (let j = i + 1; j < this.nodes.length; j++) {
+        const nodeB = this.nodes[j];
+        const squaredDistance = nodeA.squaredDistanceTo(nodeB);
+
+        // calculate gravity force
+        const force = 3 * (nodeA.m * nodeB.m) / squaredDistance;
+
+        const opacity = force * 100;
+
+        if (opacity < 0.025) {
+          continue;
+        }
+
+        if (squaredDistance <= (nodeA.m / 2 + nodeB.m / 2) * (nodeA.m / 2 + nodeB.m / 2)) {
+          // collision: remove smaller or equal - never both of them
+          if (nodeA.m <= nodeB.m) {
+            nodeA.collideTo(nodeB);
+          } else {
+            nodeB.collideTo(nodeA);
+          }
+          continue;
+        }
+
+        const distance = nodeA.distanceTo(nodeB);
+
+        // calculate gravity direction
+        const direction = {
+          x: distance.x / distance.total,
+          y: distance.y / distance.total
+        };
+
+        // draw gravity lines
+        this.ctx.beginPath();
+        if (this.nightMode) {
+          this.ctx.strokeStyle = 'rgba(191,191,191,' + (opacity < 1 ? opacity : 1) + ')';
+        } else {
+          this.ctx.strokeStyle = 'rgba(63,63,63,' + (opacity < 1 ? opacity : 1) + ')';
+        }
+        this.ctx.moveTo(nodeA.x, nodeA.y);
+        this.ctx.lineTo(nodeB.x, nodeB.y);
+        this.ctx.stroke();
+
+        nodeA.addForce(force, direction);
+        nodeB.addForce(-force, direction);
+      }
+    }
+
+    // render and update nodes
+    for (let i = 0; i < this.nodes.length; i++) {
+      this.nodes[i].render();
+      this.nodes[i].update(deltaTime || 0);
+    }
   }
 }
