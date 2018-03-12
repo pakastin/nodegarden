@@ -18,15 +18,6 @@ Really simple node garden made with HTML5. No Barnes-Hut n-body optimization, ju
 - When two nodes collide, smaller one will reset to a new location and size
 - When node travels over screen limits it will reset to a new location and size
 
-## Alternate version
-
-Electrons & positrons instead of "planets":
-
-https://nodegarden.js.org/electrons.html
-
-- red lines visualize attraction force
-- blue lines visualize repel force
-
 ## Also check out
 
 My other projects:
@@ -40,7 +31,7 @@ Download/clone and then:
 
 ```
 npm install
-npm start
+npm run dev
 ```
 
 Starts listening file changes and builds automagically to ```/public``` folder
