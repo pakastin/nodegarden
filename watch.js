@@ -5,7 +5,7 @@ var chokidar = require('chokidar');
 
 watch('css/**/*.styl', 'build-css');
 watch('scripts/**/*.js', 'build-js');
-watch('public/js/main-dev.js', 'uglify-js');
+watch('docs/js/main-dev.js', 'uglify-js');
 watch('views/**/*.jade', 'build-html');
 
 function watch (path, cmd) {
